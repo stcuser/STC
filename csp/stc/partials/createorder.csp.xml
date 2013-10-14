@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<CSP name="stc/partials/createorder.csp" application="/csp/third/" default="1"><![CDATA[
+<div class="row-fluid">
+	<div class="span4">
+	</div>
+	<div class="span4">
+		<form class="form" ng-submit="ordForm.submit()">
+			<fieldset  class="scheduler-border">
+				<legend  class="scheduler-border" ng-bind="ordForm.caption"></legend>
+				<stcperson
+					person="ordForm.order.contact"
+					companies="ordForm.companies"
+					fifty-fifty="false"
+				/>
+
+				<div>
+					<div class="control-group">
+				        <label class="control-label">Партнер</label>
+				        <div class="controls">
+				            <input class="span12" type="text" ng-model="ordForm.order.contact.partner"></input>
+				        </div>
+				    </div>
+					<div class="control-group">
+				    <label class="control-label">Курс*</label>
+				        <div class="controls">
+		                	<select class="span12" ng-model="ordForm.order.course.id" ng-options="course.id as course.name for course in ordForm.courses" ng-required="dropdownrequired">
+		                		<option value=""></option>
+		                	</select>
+				        </div>
+				    </div>
+				    <div class="control-group">
+				        <label class="control-label">Дата обучения*</label>
+				        <div class="controls">
+				            <input class="span12" type="text" placeholder="ДД-ММ-ГГГГ" pattern="[[0-9]{1,2}[.\-/][0-9]{1,2}[.\-/][0-9]{4}" ng-model="ordForm.order.date" required></input>
+				        </div>
+				    </div>
+				    <div class="control-group">
+				        <label class="control-label">Место обучения*
+				        </label>
+				        <div class="controls">
+				            <input class="span12" type="text" ng-model="ordForm.order.city" ng-change="ordForm.loadCities(ordForm.order.city)" placeholder="Поиск города" typeahead="city as city.name + ', ' + city.parentName + ', ' + city.greatParentName for city in ordForm.cities | filter: {name: $viewValue}" required></input>
+				        </div>
+				    </div>
+				    <div class="control-group">
+				        <label class="control-label">Количество слушателей*</label>
+				        <div class="controls">
+				            <input class="span12" type="text" pattern="[0-9]{1,3}" ng-model="ordForm.order.studentsNumber" required></input>
+				        </div>
+				    </div>
+				    <div class="control-group">
+				        <div class="controls">
+				            <button type="submit" class="btn btn-primary" ng-click="dropdownrequired = true">Создать</button>
+				        </div>
+				    </div>
+				</div>
+			</fieldset>
+		</form>
+	</div>
+	<div class="span4">
+	</div >
+</div >
+
+
+<!-- Окно ошибок -->
+<div class="row-fluid" ng-show="alert.visible">
+	<div class="span4"></div>
+	<div class="span4">
+		<div ng-class="alert.cssClass">
+			<button class="close" type="button" ng-click="alert.visible = false">&times;</button>
+			<strong>{{alert.title}}</strong> {{alert.msg}}
+		</div>
+	</div>
+	<div class="span4"></div>
+</div>
+<!-- / Окно ошибок -->
+]]></CSP>
+</Export>

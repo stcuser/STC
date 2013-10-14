@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<CSP name="stc/components/stcperson.csp" application="/csp/third/" default="1"><![CDATA[
+<div>
+    <div class="control-group">
+        <label class="control-label">Фамилия*</label>
+        <div class="controls">
+            <input class="span12" type="text" ng-model="person.lastName" required></input>
+        </div>
+    </div>
+    <div class="control-group">
+        <label class="control-label">Имя*</label>
+        <div class="controls">
+            <input class="span12" type="text" ng-model="person.firstName" required></input>
+        </div>
+    </div>
+    <div class="control-group">
+        <label class="control-label">Отчество</label>
+        <div class="controls">
+            <input class="span12" type="text" ng-model="person.middleName" ></input>
+        </div>
+    </div>
+    <div class="control-group">
+        <label class="control-label">Email*</label>
+        <div class="controls">
+            <input class="span12" type="email" ng-model="person.email" required></input>
+        </div>
+    </div>
+    <div class="control-group">
+        <label class="control-label">Телефон*</label>
+        <div class="controls">
+            <input class="span12" type="text" ng-model="person.phone" required></input>
+        </div>
+    </div>
+    <div class="control-group">
+        <label class="control-label">Skype</label>
+        <div class="controls">
+            <input class="span12" type="text" ng-model="person.skype"></input>
+        </div>
+    </div>
+    <div class="control-group">
+        <label class="control-label" ng-show="companyDisabled">Компания*</label>
+        <label class="control-label" ng-hide="companyDisabled">Компания* 
+            <i class="iSwitcher" ng-click="switchCompany(false)" ng-show="companyExist">(нет в списке)</i>
+            <i class="iSwitcher" ng-click="switchCompany(true)" ng-hide="companyExist">(есть в списке)</i>
+        </label>
+        <div class="controls">
+            <select class="span12" ng-show="companyExist" ng-required="companyExist" ng-model="person.company.exist.id" ng-options="company.id as company.name for company in companies" ng-disabled="companyDisabled">
+                <option value=""></option>
+            </select>
+            <input class="span12" ng-hide="companyExist" type="text" ng-model="person.company.notexist.name" placeholder="Полное название компании" ng-required="!companyExist"></input>
+        </div>
+    </div>
+    <div class="control-group" ng-hide="companyExist">
+        <label class="control-label">Веб сайт компании</label>
+        <div class="controls">
+            <input class="span12" type="text" ng-model="person.company.notexist.site"></input>
+        </div>
+    </div>
+</div>
+]]></CSP>
+</Export>

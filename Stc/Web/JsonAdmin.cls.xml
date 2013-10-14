@@ -1,0 +1,302 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<Class name="Stc.Web.JsonAdmin">
+<Super>Json</Super>
+<TimeCreated>63098,81450.05769</TimeCreated>
+
+<Method name="GetCoursesFullInfo">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	set sql = "SELECT ID As id, Name as name, Hours as hours, Days as days, ProgrammUrl as programmUrl FROM Stc_Data.Course ORDER BY name"
+    
+    do ..WriteJsonFromSql(sql)
+ 
+    quit $$$OK
+]]></Implementation>
+</Method>
+
+<Method name="GetDirtyOrders">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	set status = $$$OK
+	
+	try{
+		$$$THROWONERROR(status, ##class(%ZEN.Auxiliary.jsonProvider).%ConvertJSONToObject(%request.Content,,.params, 1))
+      	
+      	$$$THROWONERROR(status, ..WriteJsonForGrid("SELECT ID FROM Stc_Data.OrderDirty", "Stc.Data.OrderDirty", params,))
+	}
+	catch ex {
+		set status = ex.AsStatus()
+	}
+
+	quit status
+]]></Implementation>
+</Method>
+
+<Method name="GetApprovedOrders">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	set status = $$$OK
+	
+	try{
+		$$$THROWONERROR(status, ##class(%ZEN.Auxiliary.jsonProvider).%ConvertJSONToObject(%request.Content,,.params, 1))
+      	
+      	$$$THROWONERROR(status, ..WriteJsonForGrid("SELECT ID FROM Stc_Data.OrderApproved", "Stc.Data.OrderApproved", params, "OrderStatus = "_params.status))
+	}
+	catch ex {
+		set status = ex.AsStatus()
+	}
+
+	quit status
+]]></Implementation>
+</Method>
+
+<Method name="GetDirtyOrder">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>id:%String</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	set status = $$$OK
+	
+	try{
+		set order = ##class(Stc.Data.OrderDirty).GetProxyObject(id)
+		do order.%ToJSON()
+	}
+	catch ex {
+		set status = ex.AsStatus()
+	}
+
+	quit status
+]]></Implementation>
+</Method>
+
+<Method name="SaveContactFromOrder">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	set status = $$$OK
+	
+	try{
+		$$$THROWONERROR(status, ##class(%ZEN.Auxiliary.jsonProvider).%ConvertJSONToObject(%request.Content,,.data, 1))
+      	TSTART
+      	
+      	set contact = ##class(Stc.Data.Person).Create(data.contact, .status)
+      	if (status = $$$OK) {
+	      	set company = ##class(Stc.Data.Company).%OpenId(contact.Company.%Id())
+	      	set company.Contact = contact
+	      	set status = company.%Save()
+	      	
+	      	if (data.order){
+		      	set dirtyOrder = ##class(Stc.Data.OrderDirty).%OpenId(data.order)
+		      	set dirtyOrder.Company = company
+		      	set dirtyOrder.CompanyString = ""
+		      	set dirtyOrder.CompanySite = ""
+		      	set status  = dirtyOrder.%Save()
+		    }
+      	}
+      	TCOMMIT
+	}
+	catch ex {
+		TROLLBACK
+		set status = ex.AsStatus()
+	}
+
+	quit status
+]]></Implementation>
+</Method>
+
+<Method name="SaveCompanyFromOrder">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	set status = $$$OK
+	
+	try{
+		TSTART
+		
+		$$$THROWONERROR(status, ##class(%ZEN.Auxiliary.jsonProvider).%ConvertJSONToObject(%request.Content,,.data, 1))
+      	
+      	set company = ##class(Stc.Data.Company).Create(data.company, .status)
+      	$$$THROWONERROR(status, status) 
+      	set data.contact.company = ##class(%ZEN.proxyObject).%New()
+      	set data.contact.company.exist = ##class(%ZEN.proxyObject).%New()
+      	set data.contact.company.exist.id = company.%Id()
+      	
+      	set contact = ##class(Stc.Data.Person).Create(data.contact, .status)
+      	set company.Contact = contact
+      	$$$THROWONERROR(status, company.%Save()) 
+      	
+      	set order = ##class(Stc.Data.OrderDirty).%OpenId(data.orderId)
+      	set order.Company = company
+      	$$$THROWONERROR(status, order.%Save())
+      	
+      	TCOMMIT
+	}
+	catch ex {
+		TROLLBACK
+		set status = ex.AsStatus()
+	}
+
+	quit status
+]]></Implementation>
+</Method>
+
+<Method name="CreateApprovedOrder">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	set status = $$$OK
+	try{
+		TSTART
+		
+		$$$THROWONERROR(status, ##class(%ZEN.Auxiliary.jsonProvider).%ConvertJSONToObject(%request.Content,,.data, 1))
+
+      	do ##class(Stc.Data.OrderApproved).Create(data.id, .status)
+      	$$$THROWONERROR(status, status)
+      	
+      	TCOMMIT
+	}
+	catch ex {
+		TROLLBACK
+		set status = ex.AsStatus()
+	}
+
+	quit status
+]]></Implementation>
+</Method>
+
+<Method name="ChangeOrderApprovedStatus">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	set status  = $$$OK
+	
+	try{
+		TSTART
+		
+		$$$THROWONERROR(status, ##class(%ZEN.Auxiliary.jsonProvider).%ConvertJSONToObject(%request.Content,,.data, 1))
+	
+		set order = ##class(Stc.Data.OrderApproved).AccessCodeIdxOpen(data.code)
+		set order.OrderStatus = ##class(Stc.Data.OrderStatus).%OpenId(data.status)
+		$$$THROWONERROR(status, order.%Save())
+		
+		TCOMMIT
+	}
+	catch ex {
+		TROLLBACK
+		set status = ex.AsStatus()
+	}
+	
+    quit status
+]]></Implementation>
+</Method>
+
+<Method name="GetStudentsFromOrders">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>orderIdString</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	set sql = "SELECT Students As id, Students->LastName As lastName, Students->FirstName As firstName, Students->MiddleName As middleName, Students->Email As email, Students->Phone As phone, Students->Skype As skype, Students->Company->ShortName As company FROM Stc_Data.OrderApproved_Students WHERE OrderApproved IN ("_orderIdString_") ORDER BY company, lastName"
+    
+   	quit ..WriteJsonFromSql(sql)
+]]></Implementation>
+</Method>
+
+<Method name="CheckAdmin">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	//set sql = "SELECT Count(ID) FROM Stc_Data.Certificate"
+    w "HELLO"
+    quit $$$OK
+   	//quit ..WriteJsonFromSql(sql)
+]]></Implementation>
+</Method>
+
+<Method name="createTraining">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	set status  = $$$OK
+	
+	try{
+		TSTART
+		
+		$$$THROWONERROR(status, ##class(%ZEN.Auxiliary.jsonProvider).%ConvertJSONToObject(%request.Content,,.data, 1))
+		$$$THROWONERROR(status, ##class(Stc.Data.Training).Create(data))
+		
+		TCOMMIT
+	}
+	catch ex {
+		TROLLBACK
+		set status = ex.AsStatus()
+	}
+	
+    quit status
+]]></Implementation>
+</Method>
+
+<Method name="DeleteOrder">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>id</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	set status  = $$$OK
+	
+	try{
+		TSTART
+		
+		$$$THROWONERROR(status, ##class(Stc.Data.Order).Delete(id))
+		
+		TCOMMIT
+	}
+	catch ex {
+		TROLLBACK
+		set status = ex.AsStatus()
+	}
+	
+    quit status
+]]></Implementation>
+</Method>
+
+<Method name="ResolveContactConflict">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	set status  = $$$OK
+	
+	try{
+		TSTART
+		
+		$$$THROWONERROR(status, ##class(%ZEN.Auxiliary.jsonProvider).%ConvertJSONToObject(%request.Content,,.data, 1))
+		
+		set company = ##class(Stc.Data.Company).%OpenId(data.conflictData.company.id,, .status)
+		$$$THROWONERROR(status, status)
+		
+		if (data.isReplace = 1){	
+			set newCont = ##class(Stc.Data.Person).Create(data.conflictData, .status)
+			$$$THROWONERROR(status, status)
+		
+			set company.Contact = newCont
+			$$$THROWONERROR(status, company.%Save())
+		}
+		else{
+			$$$THROWONERROR(status, company.Contact.SetData(data.conflictData))
+			$$$THROWONERROR(status, company.Contact.%Save())
+		}
+			
+		TCOMMIT
+	}
+	catch ex {
+		TROLLBACK
+		set status = ex.AsStatus()
+	}
+	
+    quit status
+]]></Implementation>
+</Method>
+</Class>
+</Export>

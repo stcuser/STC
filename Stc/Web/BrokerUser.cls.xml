@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<Class name="Stc.Web.BrokerUser">
+<Super>%CSP.REST</Super>
+<TimeCreated>63098,81275.541503</TimeCreated>
+
+<XData name="UrlMap">
+<Data><![CDATA[
+<Routes>
+	<!-- Получить все курсы, коротко -->
+	<Route Method="GET" Url="/json/allCoursesShortInfo" Call="Stc.Web.JsonUser:GetCoursesShortInfo"/>
+	
+	<!-- Получить все компании, коротко -->
+	<Route Method="GET" Url="/json/allCompaniesShortInfo" Call="Stc.Web.JsonUser:GetCompaniesShortInfo"/>
+	
+	<!-- Получить все города по шаблону -->
+	<Route Method="GET" Url="/json/citiesStartsWith/:startsWith" Call="Stc.Web.JsonUser:GetCitiesStartsWith"/>
+	
+	<!-- Создать заявку -->
+	<Route Method="POST" Url="/json/createOrder" Call="Stc.Web.JsonUser:CreateOrder"/>
+	
+	<!--  -->
+	<Route Method="GET" Url="/json/approvedOrderInfo/:code" Call="Stc.Web.JsonUser:GetApprovedOrderInfo"/>
+	
+	<!--  -->
+	<Route Method="POST" Url="/json/approvedOrderStudents" Call="Stc.Web.JsonUser:GetApprovedOrderStudents"/>
+	
+	<!--  -->
+	<Route Method="POST" Url="/json/saveStudent" Call="Stc.Web.JsonUser:SaveStudent"/>
+	
+	<!--  -->
+	<Route Method="POST" Url="/json/saveCompany" Call="Stc.Web.JsonUser:SaveCompany"/>
+	
+	<!--  -->
+	<Route Method="POST" Url="/json/finishEditingOrder" Call="Stc.Web.JsonUser:FinishEditingOrder"/>
+	
+	<!--  -->
+	<Route Method="POST" Url="/json/deleteStudentFromOrder" Call="Stc.Web.JsonUser:DeleteStudentFromOrder"/>
+	
+	<!--  -->
+	<Route Method="POST" Url="/json/getStudentFromOrder" Call="Stc.Web.JsonUser:GetStudentFromOrder"/>
+</Routes>
+]]></Data>
+</XData>
+
+<Method name="Http404">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	&html<<h1>Страница не найдена. 404</h1>>
+	quit $$$OK
+]]></Implementation>
+</Method>
+</Class>
+</Export>

@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<Class name="Stc.Data.Training">
+<Description>
+Обучение</Description>
+<Super>%Persistent</Super>
+<TimeCreated>63098,13359.879291</TimeCreated>
+
+<Property name="Teacher">
+<Description>
+Преподаватель</Description>
+<Type>Person</Type>
+</Property>
+
+<Property name="Course">
+<Description>
+Курс </Description>
+<Type>Course</Type>
+<Required>1</Required>
+</Property>
+
+<Property name="SubGroups">
+<Description>
+Подгруппы со студентами</Description>
+<Type>SubGroup</Type>
+<Collection>array</Collection>
+</Property>
+
+<Property name="City">
+<Description>
+Город обучения</Description>
+<Type>Region</Type>
+<Required>1</Required>
+</Property>
+
+<Property name="Street">
+<Description>
+Адрес</Description>
+<Type>%String</Type>
+</Property>
+
+<Property name="Room">
+<Description>
+Аудитория</Description>
+<Type>%String</Type>
+</Property>
+
+<Property name="Latitude">
+<Description>
+Широта</Description>
+<Type>%Float</Type>
+</Property>
+
+<Property name="Longitude">
+<Description>
+Долгота</Description>
+<Type>%Float</Type>
+</Property>
+
+<Property name="TrainingTS">
+<Description>
+Дата и время обучения</Description>
+<Type>%TimeStamp</Type>
+<Required>1</Required>
+</Property>
+
+<Method name="Create">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>data:%RegisteredObject</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	set status = $$$OK
+	
+	set training = ..%New()
+	set training.TrainingTS = $ZDATETIME($ZDATEH(data.date, 15)_",36000", 3)
+	set training.Course = ##class(Course).%OpenId(data.course.id)
+	set training.City = ##class(Region).%OpenId(data.city.id)
+	
+	for i=1:1:data.orders.Count(){
+		set order = ##class(OrderApproved).%OpenId(data.orders.GetAt(i))
+		set sub = ##class(SubGroup).Create(order.Company, order.Students, .status)
+		if $$$ISERR(status) return status	
+		
+		set order.OrderStatus = ##class(OrderStatus).NameIdxOpen("Закрыта")
+		set status = order.%Save()
+		if $$$ISERR(status) return status
+		
+		do training.SubGroups.SetAt(sub, sub.%Id())
+	}
+	
+	quit training.%Save()
+]]></Implementation>
+</Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DataLocation>^Stc.Data.TrainingD</DataLocation>
+<DefaultData>TrainingDefaultData</DefaultData>
+<IdLocation>^Stc.Data.TrainingD</IdLocation>
+<IndexLocation>^Stc.Data.TrainingI</IndexLocation>
+<StreamLocation>^Stc.Data.TrainingS</StreamLocation>
+<ExtentSize>100000</ExtentSize>
+<Data name="SubGroups">
+<Attribute>SubGroups</Attribute>
+<Structure>subnode</Structure>
+<Subscript>"SubGroups"</Subscript>
+</Data>
+<Data name="TrainingDefaultData">
+<Value name="1">
+<Value>%%CLASSNAME</Value>
+</Value>
+<Value name="2">
+<Value>Teacher</Value>
+</Value>
+<Value name="3">
+<Value>City</Value>
+</Value>
+<Value name="4">
+<Value>Course</Value>
+</Value>
+<Value name="5">
+<Value>Street</Value>
+</Value>
+<Value name="6">
+<Value>Room</Value>
+</Value>
+<Value name="7">
+<Value>Latitude</Value>
+</Value>
+<Value name="8">
+<Value>Longitude</Value>
+</Value>
+<Value name="9">
+<Value>TrainingTS</Value>
+</Value>
+</Data>
+</Storage>
+</Class>
+</Export>

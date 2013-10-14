@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<CSP name="stc/js/controllers/UpdateOrderCtrl.js" application="/csp/third/" default="1"><![CDATA[
+'use strict';
+//dddddddddddddd
+
+controllersModule.controller('UpdateOrderCtrl', function($scope, $window, $location, $routeParams, OrderSrvc, CompanySrvc, PersonSrvc, UtilsSrvc){
+    $scope.ordForm = {order: {}, studTable: {}, visible: false};
+    
+    $scope.ordForm.init = function(){
+
+        $scope.ordForm.studTable.columns = [
+                          {name: 'Фамилия', sqlName: 'Students->LastName', isSorted: true, isDown: true, isSearched: false, isSearchable: true},
+                          {name: 'Имя', sqlName: 'Students->FirstName', isSorted: false, isDown: true, isSearched: false, isSearchable: true},
+                          {name: 'Отчество', sqlName: 'Students->MiddleName', isSorted: false, isDown: true, isSearched: false, isSearchable: false},
+                          {name: 'Компания', sqlName: 'Students->Company->ShortName', isSorted: false, isDown: true, isSearched: false, isSearchable: false},
+                          {name: 'Email', sqlName: 'Students->Email', isSorted: false, isDown: true, isSearched: false, isSearchable: true},
+                          {name: 'Телефон', sqlName: 'Students->Phone', isSorted: false, isDown: true, isSearched: false, isSearchable: true},
+                          {name: 'Skype', sqlName: 'Students->Skype', isSorted: false, isDown: true, isSearched: false, isSearchable: true}];
+        
+        $scope.ordForm.studTable.properties = ['lastName', 'firstName', 'middleName', 'company.shortName', 'email', 'phone', 'skype'];
+        $scope.ordForm.studTable.pageSize = 8;
+        $scope.ordForm.studTable.pageCurr = 1;
+        $scope.ordForm.studTable.itemsTotal = 0;
+        $scope.ordForm.studTable.selectedItems = [];
+        $scope.ordForm.studTable.multiSelectMode = false;
+        $scope.ordForm.studTable.active = $routeParams.stud == 1 ? true : false;
+		$scope.ordForm.studTable.forciblyUpdate = 0;
+
+        $scope.ordForm.admin = $routeParams.pageCurr ? true: false;
+        
+		if ($routeParams.code){
+  			$scope.ordForm.loadOrderData();
+        }
+        
+    };
+
+    $scope.ordForm.loadOrderData = function(){
+        OrderSrvc.getApprovedOrderByCode($routeParams.code).then(
+            function(data){
+	            $scope.ordForm.visible = true;
+                $scope.ordForm.order = data;
+
+                // =======================================================================
+                if ($scope.ordForm.order.contact.company.bic == ""){
+                    $scope.ordForm.order.contact.company.bic = "text";
+                    $scope.ordForm.order.contact.company.otherInfo = "text";
+                    $scope.ordForm.order.contact.company.kpp = "text";
+                    $scope.ordForm.order.contact.company.inn = "text";
+                    $scope.ordForm.order.contact.company.legalAddress = "text";
+                    $scope.ordForm.order.contact.company.mailAddress = "text";
+                    $scope.ordForm.order.contact.company.settlementAccount = "text";
+                    $scope.ordForm.order.contact.company.ogrn = "text";
+                    $scope.ordForm.order.contact.company.correspondentAccount = "text";
+                }
+                //========================================================================
+                 $scope.ordForm.studTable.loadItems($scope.ordForm.studTable.pageCurr, $scope.ordForm.studTable.pageSize, "Students->LastName", true, "", ""); 
+            },
+            function(response){
+                $scope.ordForm.alert = UtilsSrvc.getAlert('Ошибка !', response.data, 'error', true);
+                $scope.ordForm.visible = false;
+            });
+    };
+
+    $scope.ordForm.saveCompany = function(){
+        CompanySrvc.saveCompanyByCode($scope.ordForm.order.contact.company, $routeParams.code).then(
+            function(data){
+                $scope.ordForm.alert = UtilsSrvc.getAlert('Успех!', 'Данные о компании сохранены', 'success', true);
+                $scope.formCompany.$dirty = false;
+            },
+            function(response){
+                $scope.ordForm.alert = UtilsSrvc.getAlert('Ошибка!', response.data, 'error', true);
+            });
+    };
+
+    $scope.ordForm.finishEditing = function(){
+        OrderSrvc.finishEditingOrder($routeParams.code).then(
+            function(data){
+                $scope.ordForm.alert = UtilsSrvc.getAlert('Успех!', 'Ваша заявка отправлена на рассмотрение.', 'success', true);
+                $scope.ordForm.visible = false;
+            },
+            function(response){
+                $scope.ordForm.alert = UtilsSrvc.getAlert('Ошибка!', response.data, 'error', true);
+            });
+    };
+
+
+    $scope.ordForm.studTable.loadItems = function(pageCurr, pageSize, sqlName, isDown, searchSqlName, searchText){
+        OrderSrvc.getApprovedOrderStudentsByCode($routeParams.code, pageCurr, pageSize, sqlName, isDown, searchSqlName, searchText).then(
+            function(data){
+                $scope.ordForm.studTable.pageTotal = Math.ceil(data.itemsTotal / pageSize);
+                $scope.ordForm.studTable.itemsTotal = data.itemsTotal;
+                $scope.ordForm.studTable.items = data.items;
+            },
+            function(response){
+                $scope.alert = UtilsSrvc.getAlert('Ошибка !', response.data, 'error', true);
+            });
+    };
+    
+    $scope.ordForm.studTable.add = function(){
+         $location.path('/person').search({order: $routeParams.code, comp: $scope.ordForm.order.contact.company.id});
+    };
+
+    $scope.ordForm.studTable.edit = function(item){
+         $location.path('/person').search({order: $routeParams.code, personId: item.id});
+    };
+
+    $scope.ordForm.studTable.delete = function(item){
+        function deleteStudent(){
+            PersonSrvc.deleteStudentFromOrder($routeParams.code, item.id).then(
+                function(data){
+                    $scope.ordForm.alert = UtilsSrvc.getAlert('Успех!', 'Слушатель удален.', 'success', true);
+                    $scope.ordForm.studTable.forciblyUpdate += 1;
+                },
+                function(response){
+                    $scope.ordForm.alert = UtilsSrvc.getAlert('Ошибка!', response.data, 'error', true);
+                });
+        }
+
+         UtilsSrvc.openMessageBox('Удалить слушателя', "Удалить слушателя '" + item.lastName + "' из списка?", deleteStudent);
+    };
+
+    $scope.ordForm.backToOrders = function(){
+        $location.path('/orders').search({approved: $scope.ordForm.order.id, pageCurr: $routeParams.pageCurr, pageSize: $routeParams.pageSize, status: $scope.ordForm.order.status});
+    };
+
+    $scope.ordForm.init();
+  });
+
+]]></CSP>
+</Export>

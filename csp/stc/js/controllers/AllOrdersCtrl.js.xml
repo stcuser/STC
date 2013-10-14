@@ -1,0 +1,343 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<CSP name="stc/js/controllers/AllOrdersCtrl.js" application="/csp/third/" default="1"><![CDATA[
+'use strict';
+//fddddddddddddddsdddddddddd
+
+controllersModule.controller('AllOrdersCtrl', function($scope, $location, $routeParams, $timeout, OrderSrvc, UtilsSrvc, RegionSrvc, CourseTeacherSrvc, TrainingSrvc, CompanySrvc){
+    $scope.menu.selectMenu('orders');
+    $scope.menu.login();
+    
+    $scope.dirty = {};
+    $scope.approved = {tabActive: $routeParams.status ? true : false, status: $routeParams.status ? parseInt($routeParams.status) : 2};
+    
+    // DIRTY
+    // Инициализация НЕОБРАБОТАННЫХ ЗАЯВОК
+    $scope.dirty.init = function(){
+        $scope.dirty.columns = [
+                          {name: 'Курс',          sqlName: 'Course->Name',   isSorted: false, isDown: true,  isSearched: false, isSearchable: true},
+                          {name: 'Город',         sqlName: 'City->Name',     isSorted: false, isDown: true,  isSearched: false, isSearchable: true},
+                          {name: 'Дата обучения', sqlName: 'TrainingDate',   isSorted: false, isDown: true,  isSearched: false, isSearchable: false},
+                          {name: 'Слушатели',     sqlName: 'StudentsNumber', isSorted: false, isDown: true,  isSearched: false, isSearchable: false},
+                          {name: 'Компания',      sqlName: 'Company->ShortName',  isSorted: false, isDown: true,  isSearched: false, isSearchable: true},
+                          {name: 'Дата создания', sqlName: 'CreatedTS',      isSorted: true,  isDown: false, isSearched: false, isSearchable: false}];
+        
+        $scope.dirty.properties = ['course.name', 'city.name', 'date', 'studentsNumber', 'contact.company.shortName', 'createdTS'];
+        $scope.dirty.pageSize = 10;
+        $scope.dirty.pageCurr = 1;
+        $scope.dirty.itemsTotal = 0;
+        $scope.dirty.selectedItems = [];
+        $scope.dirty.multiSelectMode = false;
+
+        $scope.dirty.loadItems($scope.dirty.pageCurr, $scope.dirty.pageSize, "CreatedTS", false, "Course->Name", ""); 
+ 
+    };
+
+    // DIRTY
+    // Загрузка грязных заявок
+    $scope.dirty.loadItems = function(pageCurr, pageSize, sqlName, isDown, searchSqlName, searchText){
+        OrderSrvc.getDirtyOrders(pageCurr, pageSize, sqlName, isDown, searchSqlName, searchText).then(
+            function(data){
+
+	            
+                $scope.dirty.pageTotal = Math.ceil(data.itemsTotal / pageSize);
+                $scope.dirty.itemsTotal = data.itemsTotal;
+                $scope.dirty.items = data.items;
+
+                if ($scope.dirty.selectedItems && $scope.dirty.items && $scope.dirty.selectedItems.length == 0 && $scope.dirty.items.length != 0){
+                    $scope.dirty.selectedItems[0] = $scope.dirty.items[0];
+                    $scope.dirty.selectedItems[0].rowClass = 'info';
+                }
+            },
+            function(response){
+                $scope.dirty.alert = UtilsSrvc.getAlert('Ошибка !', response.data, 'error', true);
+            });
+    };
+    
+    // DIRTY
+    // Одобрить заявку
+    $scope.dirty.accept = function(){
+        function acceptOrder(){
+            OrderSrvc.createApprovedOrder($scope.dirty.selectedItems[0].id).then(
+                function(data){
+                    $scope.dirty.init();
+                    $scope.approved.init();
+                },
+                function(response){
+                    $scope.dirty.alert = UtilsSrvc.getAlert('Ошибка !', response.data, 'error', true);
+                });
+        };
+
+        function createCompany(){
+            $location.path('/company').search({order: $scope.dirty.selectedItems[0].id});
+        };
+
+        if ($scope.dirty.selectedItems[0].contact.company.id){
+            UtilsSrvc.openMessageBox('Принять заявку', 'Одобрить заявку и отправить контактному лицу код доступа к заявке для полного заполнения?', acceptOrder);
+        }
+        else {
+            UtilsSrvc.openMessageBox('Принять заявку', 'Компания, указанная в заявке не существует. Создать ее?', createCompany);
+        }
+    };
+
+    // DIRTY
+    // Отклонить/Удалить заявку
+    $scope.dirty.delete = function(item){
+        function deleteOrder(){
+            OrderSrvc.deleteOrder(item.id).then(
+                function(data){
+                    $scope.dirty.alert = UtilsSrvc.getAlert('Готово!', 'Необработанная заявка удалена', 'success', true);
+                    $scope.dirty.init();
+                },
+                function(response){
+                    $scope.dirty.alert = UtilsSrvc.getAlert('Ошибка!', response.data, 'error', true);
+                });  
+        };
+
+    UtilsSrvc.openMessageBox('Удалить заявку', "Удалить заявку от компании '" + item.contact.company.shortName + "'?", deleteOrder);    };
+
+    // DIRTY
+    // Отклонить/Удалить заявку
+    $scope.approved.delete = function(item){
+        function deleteOrder(){
+            OrderSrvc.deleteOrder(item.id).then(
+                function(data){
+                    $scope.approved.alert = UtilsSrvc.getAlert('Готово!', 'Обработанная заявка удалена', 'success', true);
+                    $scope.approved.init();
+                },
+                function(response){
+                    $scope.approved.alert = UtilsSrvc.getAlert('Ошибка!', response.data, 'error', true);
+                });  
+        };
+
+        UtilsSrvc.openMessageBox('Удалить заявку', "Удалить заявку от компании '" + item.contact.company.shortName + "'?", deleteOrder);
+    };
+
+    // DIRTY
+    // 
+    $scope.dirty.resolveContactConflict = function(isReplace){
+        var msgSuccess = 'Контакт заменен';
+        var msgWindow = ['Заменить контакт', 'Заменить контакт компании контактом из заявки? Старый контакт компании не будет удален.'];
+
+        if (!isReplace){
+            msgSuccess = 'Контакт обновлен';
+            msgWindow = ['Обновить контакт', 'Заменить данные контакта компании данными контакта из заявки?'];
+        }
+
+        function resolve(){
+            CompanySrvc.resolveContactConflict($scope.dirty.selectedItems[0].contact, isReplace).then(
+                function(data){
+                    $scope.dirty.alert = UtilsSrvc.getAlert('Готово!', msgSuccess, 'success', true);
+                    $scope.dirty.init();
+                },
+                function(response){
+                    $scope.dirty.alert = UtilsSrvc.getAlert('Ошибка!', response.data, 'error', true);
+                });
+        };
+
+        UtilsSrvc.openMessageBox(msgWindow[0], msgWindow[1], resolve);
+    };
+
+    //========================================================================================================================================================
+
+    // APPROVED
+    // Инициализация ОБРАБОТАННЫХ ЗАЯВОК
+    $scope.approved.init = function(){
+ 
+        $scope.approved.columns = [
+                          {name: 'Курс',          sqlName: 'Course->Name',   isSorted: false, isDown: true,  isSearched: false, isSearchable: true},
+                          {name: 'Город',         sqlName: 'City->Name',     isSorted: false, isDown: true,  isSearched: false, isSearchable: true},
+                          {name: 'Дата обучения', sqlName: 'TrainingDate',   isSorted: false, isDown: true,  isSearched: false, isSearchable: false},
+                          {name: 'Слушатели',     sqlName: 'StudentsNumber', isSorted: false, isDown: true,  isSearched: false, isSearchable: false},
+                          {name: 'Компания',      sqlName: 'Company->ShortName',  isSorted: false, isDown: true,  isSearched: false, isSearchable: true},
+                          {name: 'Дата создания', sqlName: 'CreatedTS',      isSorted: true,  isDown: false, isSearched: false, isSearchable: false}];
+        
+        $scope.approved.properties = ['course.name', 'city.name', 'date', 'studentsNumber', 'contact.company.shortName', 'createdTS'];
+        //$scope.approved.pageSize = 10;
+        //$scope.approved.pageCurr = 1;
+        $scope.approved.itemsTotal = 0;
+        $scope.approved.selectedItems = [];
+        $scope.approved.multiSelectMode = false;
+        //$scope.approved.status = 2;
+
+        if ($routeParams.pageCurr && $routeParams.pageSize){
+            $scope.approved.pageSize = parseInt($routeParams.pageSize);
+            $scope.approved.pageCurr = parseInt($routeParams.pageCurr);
+
+            $routeParams.pageCurr = undefined;
+            $routeParams.pageSize = undefined;
+            $scope.approved.loadItems($scope.approved.pageCurr, $scope.approved.pageSize, "CreatedTS", false, "", "");
+        }
+        else{
+            $scope.approved.pageSize = 10;
+            $scope.approved.pageCurr = 1;
+            $scope.approved.loadItems($scope.approved.pageCurr, $scope.approved.pageSize, "CreatedTS", false, "Course->Name", ""); 
+        }
+    };
+    
+    // APPROVED
+    // Загрузка одобренных заявок
+    $scope.approved.loadItems = function(pageCurr, pageSize, sqlName, isDown, searchSqlName, searchText){
+        OrderSrvc.getApprovedOrders(pageCurr, pageSize, sqlName, isDown, searchSqlName, searchText,  $scope.approved.status ).then(
+            function(data){
+	            
+                $scope.approved.pageTotal = Math.ceil(data.itemsTotal / pageSize);
+                $scope.approved.itemsTotal = data.itemsTotal;
+                $scope.approved.items = data.items;
+
+                if ($routeParams.approved && $scope.approved.items.length != 0){
+                    var idxSort = UtilsSrvc.getIndexes($scope.approved.items, 'id', $routeParams.approved);
+                    if (idxSort.length != 0){
+                        $scope.approved.selectedItems = [$scope.approved.items[idxSort[0]]];
+                        $scope.approved.selectedItems[0].rowClass = 'info';
+                        $routeParams.approved = undefined;
+                    }
+                }
+
+
+                if ($scope.approved.selectedItems && $scope.approved.items && $scope.approved.selectedItems.length == 0 && $scope.approved.items.length != 0){
+                    $scope.approved.selectedItems[0] = $scope.approved.items[0];
+                    $scope.approved.selectedItems[0].rowClass = 'info';
+                }
+            },
+            function(response){
+                $scope.approved.alert = UtilsSrvc.getAlert('Ошибка !', response.data, 'error', true);
+            });
+    };
+
+    // APPROVED
+    // 
+    $scope.$watch('approved.status', function(){
+        $scope.approved.tabInfo = true;
+        $scope.approved.init();
+        console.log('approved.tabInfo=' + $scope.approved.tabInfo + '__approved.status='+$scope.approved.status);
+    });
+
+
+    $scope.$watch('approved.tabInfo', function(){
+        console.log('approved.tabInfo=' + $scope.approved.tabInfo + '__approved.status='+$scope.approved.status);
+        if ($scope.approved.tabInfo == false && $scope.approved.status == 3){
+            $scope.approved.multiSelectMode = true;
+        }
+        else{
+            $scope.approved.multiSelectMode = false;   
+        }
+
+    });
+
+
+    // APPROVED
+    // 
+    $scope.approved.openOrder = function(item){
+        $location.path('/updateorder').search({code: item.code, pageCurr: $scope.approved.pageCurr, pageSize: $scope.approved.pageSize});
+    };
+
+
+
+    // APPROVED
+    // 
+    $scope.approved.changeOrderStatus = function(status){
+        console.log('changeOrderStatuss');
+        OrderSrvc.changeOrderApprovedStatus($scope.approved.selectedItems[0].code, status).then(
+            function(data){
+                $scope.approved.status = status;
+                $scope.approved.init();
+            },
+            function(response){
+                $scope.approved.alert = UtilsSrvc.getAlert('Ошибка !', response.data, 'error', true);
+            });
+    };
+
+
+    $scope.training = {data:{course:{}}};
+    // TRAINING
+    // 
+    $scope.training.init = function(){
+        $scope.training.orderColumns = [
+                          {name: 'Курс',          sqlName: 'Course->Name',   isSorted: false, isDown: true,  isSearched: false, isSearchable: true},
+                          {name: 'Город',         sqlName: 'City->Name',     isSorted: false, isDown: true,  isSearched: false, isSearchable: true},
+                          {name: 'Дата обучения', sqlName: 'TrainingDate',   isSorted: false, isDown: true,  isSearched: false, isSearchable: false},
+                          {name: 'Слушатели',     sqlName: 'StudentsNumber', isSorted: false, isDown: true,  isSearched: false, isSearchable: false},
+                          {name: 'Компания',      sqlName: 'Company->ShortName',  isSorted: false, isDown: false,  isSearched: false, isSearchable: true},
+                          {name: 'Дата создания', sqlName: 'CreatedTS',      isSorted: false,  isDown: false, isSearched: false, isSearchable: false}];
+        $scope.training.studentColumns = [{name: 'Фамилия'}, {name: 'Имя'}, {name: 'Отчество'}, {name: 'Компания'}, {name: 'Email'}, {name: 'Телефон'}, {name: 'Skype'}];
+        $scope.training.studentProperties = ['lastName', 'firstName', 'middleName', 'company', 'email', 'phone', 'skype'];
+        $scope.training.studentItems = [];
+
+        $scope.training.loadCourses();
+    };
+
+    $scope.$watch('approved.selectedItems', function(){
+        if ($scope.approved.status != 3 || !$scope.approved.selectedItems || $scope.approved.selectedItems.length == 0){
+            $scope.training.studentItems = [];
+            return;
+        }
+
+        var orderIdString = '';
+
+        for (var i = 0; i < $scope.approved.selectedItems.length; i++)
+            orderIdString += $scope.approved.selectedItems[i].id + ',';
+
+        orderIdString = orderIdString.substring(0, orderIdString.length-1);
+
+        $scope.training.data.city = $scope.approved.selectedItems[0].city;
+        $scope.training.data.course.id = $scope.approved.selectedItems[0].course.id;
+        $scope.training.data.date = $scope.approved.selectedItems[0].date.substring(8, 10) + '-' + $scope.approved.selectedItems[0].date.substring(5, 7) + '-' + $scope.approved.selectedItems[0].date.substring(0,4);
+        $scope.training.data.orders = orderIdString.split(',');
+
+        OrderSrvc.getStudentsFromOrders(orderIdString).then(
+            function(data){
+               $scope.training.studentItems = data;
+                //console.log(data);
+               
+            },
+            function(response){
+                $scope.approved.alert = UtilsSrvc.getAlert('Ошибка !', response.data, 'error', true);
+            });
+    }, true);
+
+
+    $scope.training.loadCourses = function(){
+        CourseTeacherSrvc.getAllCoursesShortInfo().then(
+            function(data){
+                $scope.training.courses = data;
+            },
+            function(response){
+                $scope.approved.alert = UtilsSrvc.getAlert('Ошибка !', response.data, 'error', true);
+            }); 
+    };
+
+    $scope.training.loadCities = function(startsWith){
+        if(!startsWith || startsWith.length == 0)
+            $scope.training.cities = [];
+        
+        if (startsWith.length != 2)
+            return;  
+
+        RegionSrvc.getAllCitiesStartsWith(startsWith).then(
+            function(data){
+                $scope.training.cities = data;
+            },
+            function(response){
+                $scope.approved.alert = UtilsSrvc.getAlert('Ошибка !', response.data, 'error', true);
+            }); 
+    };
+
+    $scope.training.create = function(){
+        TrainingSrvc.createTraining($scope.training.data).then(
+            function(data){
+                $scope.approved.alert = UtilsSrvc.getAlert('Готово !', 'Обучение создано', 'success', true);
+                $scope.approved.init();
+            },
+            function(response){
+                $scope.approved.alert = UtilsSrvc.getAlert('Ошибка !', response.data, 'error', true);
+            }); 
+    };
+
+    $scope.dirty.init();
+    $scope.approved.init();
+    $scope.training.init();
+  });
+
+]]></CSP>
+</Export>

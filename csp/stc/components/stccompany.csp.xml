@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<CSP name="stc/components/stccompany.csp" application="/csp/third/" default="1"><![CDATA[
+<div class="row-fluid">
+    <div class="span6">
+        <div class="control-group">
+            <label class="control-label">Название компании*</label>
+            <div class="controls">
+                <input class="span12" type="text" ng-model="company.shortName" required ng-disabled="disableShortName"></input>
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label">Полное название компании<span ng-show="requiredAll">*</span></label>
+            <div class="controls">
+                <input class="span12" type="text" ng-model="company.fullName" ng-required="requiredAll"></input>
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label">Юридический адрес<span ng-show="requiredAll">*</span></label>
+            <div class="controls">
+                <input class="span12" type="text" ng-model="company.legalAddress" ng-required="requiredAll"></input>
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label">Почтовый адрес<span ng-show="requiredAll">*</span></label>
+            <div class="controls">
+                <input class="span12" type="text" ng-model="company.mailAddress" ng-required="requiredAll"></input>
+            </div>
+        </div> 
+        <div class="control-group">
+            <label class="control-label">Веб сайт</label>
+            <div class="controls">
+                <input class="span12" type="text" ng-model="company.site"></input>
+            </div>
+        </div>   
+        <div class="control-group">
+            <label class="control-label">Другая информация</label>
+            <div class="controls">
+                <textarea class="span12" rows="3" ng-model="company.otherInfo"></textarea>
+            </div>
+        </div>  
+    </div>
+
+
+    <div class="span6">
+        <div class="control-group">
+            <label class="control-label">Код причины постановки на учёт<span ng-show="requiredAll">*</span></label>
+            <div class="controls">
+                <input class="span12" type="text" ng-model="company.kpp" ng-required="requiredAll"></input>
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label">Идентификационный номер налогоплательщика<span ng-show="requiredAll">*</span></label>
+            <div class="controls">
+                <input class="span12" type="text" ng-model="company.inn" ng-required="requiredAll"></input>
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label">Основной государственный регистрационный номер<span ng-show="requiredAll">*</span></label>
+            <div class="controls">
+                <input class="span12" type="text" ng-model="company.ogrn" ng-required="requiredAll"></input>
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label">Расчётный счёт<span ng-show="requiredAll">*</span></label>
+            <div class="controls">
+                <input class="span12" type="text" ng-model="company.settlementAccount" ng-required="requiredAll"></input>
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label">Корреспондентский счёт<span ng-show="requiredAll">*</span></label>
+            <div class="controls">
+                <input class="span12" type="text" ng-model="company.correspondentAccount" ng-required="requiredAll"></input>
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label">Банковский идентификационный код<span ng-show="requiredAll">*</span></label>
+            <div class="controls">
+                <input class="span12" type="text" ng-model="company.bic" ng-required="requiredAll"></input>
+            </div>
+        </div>     
+    </div>
+</div>]]></CSP>
+</Export>

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<CSP name="stc/js/services/PersonSrvc.js" application="/csp/third/" default="1"><![CDATA[
+'use strict';
+//ddddxddddd
+
+/*===========================================================================================
+Компании
+===========================================================================================*/
+servicesModule.factory('PersonSrvc', function($resource, $q) {
+	
+	return {
+        saveContact: function(contact){
+            var resource = $resource('/stcapp/admin/json/saveContact');
+            var deferred = $q.defer();
+
+            resource.save(contact,
+                function(data){
+                    deferred.resolve(data);
+                },
+                function(response){
+                    deferred.reject(response);
+                });
+
+            return deferred.promise;
+        },
+        saveStudent: function(student){
+            var resource = $resource('/stcapp/user/json/saveStudent');
+            var deferred = $q.defer();
+
+            resource.save(student,
+                function(data){
+                    deferred.resolve(data);
+                },
+                function(response){
+                    deferred.reject(response);
+                });
+
+            return deferred.promise;
+        },
+        deleteStudentFromOrder: function(accessCode, studentId){
+            var resource = $resource('/stcapp/user/json/deleteStudentFromOrder');
+            var deferred = $q.defer();
+
+            resource.save({order: {code: accessCode}, student: {id: studentId}},
+                function(data){
+                    deferred.resolve(data);
+                },
+                function(response){
+                    deferred.reject(response);
+                });
+
+            return deferred.promise;
+        },
+        getStudentFromOrder: function(accessCode, studentId){
+            var resource = $resource('/stcapp/user/json/getStudentFromOrder');
+            var deferred = $q.defer();
+
+            resource.save({order: {code: accessCode}, student: {id: studentId}},
+                function(data){
+                    deferred.resolve(data);
+                },
+                function(response){
+                    deferred.reject(response);
+                });
+
+            return deferred.promise;
+        }
+    }
+});
+  
+]]></CSP>
+</Export>

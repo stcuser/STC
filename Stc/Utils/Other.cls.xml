@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<Class name="Stc.Utils.Other">
+<TimeCreated>63106,67028.749079</TimeCreated>
+
+<Method name="ExportAll">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	do ..ExportToFile("SELECT ID FROM Stc_Data.Company", "e:\Stc\company.xml", "Company")
+	do ..ExportToFile("SELECT ID FROM Stc_Data.Person", "e:\Stc\person.xml", "Person")
+	do ..ExportToFile("SELECT ID FROM Stc_Data.OrderDirty", "e:\Stc\dirty.xml", "OrderDirty")
+	do ..ExportToFile("SELECT ID FROM Stc_Data.OrderApproved", "e:\Stc\approved.xml", "OrderApproved")
+]]></Implementation>
+</Method>
+
+<Method name="ExportToFile">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>sql,fileName,className</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	set out = ##class(%Library.FileCharacterStream).%New()
+	set out.Filename = fileName
+	
+	set statement = ##class(%SQL.Statement).%New()	
+	do statement.%Prepare(sql)		
+	set rs = statement.%Execute()
+	do out.Write("XData "_className_"XData")
+	do out.Write($$$EOL)
+	do out.Write("{")
+	do out.Write($$$EOL)
+	do out.Write("<"_className_"XData>")	
+	do out.Write($$$EOL)
+	while (rs.%Next() '= 0){
+		do out.Write(..ToString(rs.%GetData(1), className))
+		do out.Write($$$EOL)
+	}
+	do out.Write("</"_className_"XData>")
+	do out.Write($$$EOL)
+	do out.Write("}")	
+	do rs.%Close()						
+	do statement.%Close()
+	
+	quit out.%Save()
+]]></Implementation>
+</Method>
+
+<Method name="ToString">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>id,className</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set result = ""
+	
+	if (className = "Company"){
+		set comp = ##class(Stc.Data.Company).%OpenId(id)
+		set result = "<Company><ShortName>"_comp.ShortName_"</ShortName><Contact>"_comp.Contact.%Id()_"</Contact></Company>"		
+	}
+	elseif (className = "Person"){
+		set pers = ##class(Stc.Data.Person).%OpenId(id)
+		set result = "<Person><Company>"_pers.Company.%Id()_"</Company><LastName>"_pers.LastName_"</LastName><FirstName>"_pers.FirstName_"</FirstName><MiddleName>"_pers.MiddleName_"</MiddleName><Email>"_pers.Email_"</Email><Phone>"_pers.Phone_"</Phone><Skype>"_pers.Skype_"</Skype></Person>"		
+	}
+	elseif (className = "OrderDirty"){
+		set dirty = ##class(Stc.Data.OrderDirty).%OpenId(id)
+		set compId = ""
+		if (dirty.Company) set compId = dirty.Company.%Id()
+		
+		set result = "<OrderDirty><LastName>"_dirty.LastName_"</LastName><FirstName>"_dirty.FirstName_"</FirstName><MiddleName>"_dirty.MiddleName_"</MiddleName><Email>"_dirty.Email_"</Email><Phone>"_dirty.Phone_"</Phone><Skype>"_dirty.Skype_"</Skype><CompanyString>"_dirty.CompanyString_"</CompanyString><CompanySite>"_dirty.CompanySite_"</CompanySite><Company>"_compId_"</Company><City>"_dirty.City.%Id()_"</City><Course>"_dirty.Course.%Id()_"</Course><TrainingDate>"_$ZDATE(dirty.TrainingDate, 3)_"</TrainingDate><Partner>"_dirty.Partner_"</Partner><StudentsNumber>"_dirty.StudentsNumber_"</StudentsNumber></OrderDirty>"		
+	}
+	elseif (className = "OrderApproved"){
+		set approved = ##class(Stc.Data.OrderApproved).%OpenId(id)
+		set result = "<OrderApproved><Company>"_approved.Company.%Id()_"</Company><City>"_approved.City.%Id()_"</City><Course>"_approved.Course.%Id()_"</Course><TrainingDate>"_$ZDATE(approved.TrainingDate, 3)_"</TrainingDate><Partner>"_approved.Partner_"</Partner></OrderApproved>"		
+	}
+	
+	quit result
+]]></Implementation>
+</Method>
+</Class>
+</Export>

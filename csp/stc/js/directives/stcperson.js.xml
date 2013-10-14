@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<CSP name="stc/js/directives/stcperson.js" application="/csp/third/" default="1"><![CDATA[
+'use strict';
+//ddd
+
+directivesModule.directive('stcperson', function(){
+    return {
+        replace: true,
+        restrict: 'E',
+        templateUrl: 'components/stcperson.csp',
+        
+        scope: {
+            person: '=',
+            companies: '=',
+            companyDisabled: '='     
+        },
+        controller: function($scope){
+            $scope.companyExist = true;
+
+            $scope.switchCompany = function(exist){
+                $scope.companyExist = exist;
+
+                if (exist && $scope.person.company)
+                    $scope.person.company.notexist = '';
+                else if ($scope.person.company)
+                    $scope.person.company.exist = '';
+            };
+	   	}
+    }
+});
+]]></CSP>
+</Export>

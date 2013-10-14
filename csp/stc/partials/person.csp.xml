@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<CSP name="stc/partials/person.csp" application="/csp/third/" default="1"><![CDATA[
+<div class="row-fluid" ng-show="personForm.visible">
+	<div class="span4">
+	</div>
+	<div class="span4">
+		<form class="form" ng-submit="personForm.save()">
+			<fieldset  class="scheduler-border">
+				<legend  class="scheduler-border" ng-bind="personForm.caption"></legend>
+					<stcperson person="personForm.person" companies="personForm.companies" company-disabled="personForm.companyDisabled"/>
+				<button class="btn btn-primary" type="submit">Сохранить</button>
+			</fieldset>
+		</form>
+	</div>
+	<div class="span4">
+	</div>
+</div>
+<stcalert data="personForm.alert" span-right="1" span-middle="10" span-left="1"/>
+
+]]></CSP>
+</Export>

@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<CSP name="stc/js/services/CourseTeacherSrvc.js" application="/csp/third/" default="1"><![CDATA[
+'use strict';
+//dd
+
+/*===========================================================================================
+Курсы и преподватели
+===========================================================================================*/
+servicesModule.factory('CourseTeacherSrvc', function($resource, $q) {
+	
+	return {
+		/* Получить все курсы */
+		getAllCoursesShortInfo: function(){
+			var resource = $resource('/stcapp/user/json/allCoursesShortInfo');		
+			var deferred = $q.defer();
+
+			resource.get(
+				function(data){
+					deferred.resolve(data.children);
+				},
+				function(response){
+					deferred.reject(response);
+				});
+
+			return deferred.promise;
+		},
+		/* Получить всех преподавателей */
+		getAllTeachers: function(){
+			var resource = $resource('/stcapp/json/allTeachers');
+			var deferred = $q.defer();
+
+			resource.get(
+				function(data){
+					deferred.resolve(data.children);
+				},
+				function(response){
+					deferred.reject(response);
+				});
+
+			return deferred.promise;
+		},
+		/* Удалить курс */
+		deleteCourse: function(courseId){
+			var resource = $resource('/stcapp/json/deleteCourse/:courseId', {courseId: '@courseId'});		
+			var deferred = $q.defer();
+
+			resource.delete({courseId: courseId},
+				function(data){
+					deferred.resolve(data);
+				},
+				function(response){
+					deferred.reject(response);
+				});
+
+			return deferred.promise;
+		},
+		/* Обновить или создать курс */
+		saveCourse: function(course){
+			var resource = $resource('/stcapp/json/saveCourse');
+			var deferred = $q.defer();
+
+			resource.save(course,
+				function(data){
+					deferred.resolve(data);
+				},
+				function(response){
+					deferred.reject(response);
+				});
+
+			return deferred.promise;
+		},
+		/*  Получить курсы преподавателя*/
+		getCoursesForTeacher: function(teacherId){
+			var resource = $resource('/stcapp/json/coursesForTeacher/:teacherId', {teacherId: '@teacherId'});			
+			var deferred = $q.defer();
+
+			resource.get({teacherId: teacherId},
+				function(data){
+					deferred.resolve(data.children);
+				},
+				function(response){
+					deferred.reject(response);
+				});
+
+			return deferred.promise;
+		},
+		/* Получить преподавателей курса */
+		getTeachersForCourse: function(courseId){
+			var resource = $resource('/stcapp/json/teachersForCourse/:courseId', {courseId: '@courseId'});		
+			var deferred = $q.defer();
+
+			resource.get({courseId: courseId},
+				function(data){
+					deferred.resolve(data.children);
+				},
+				function(response){
+					deferred.reject(response);
+				});
+
+			return deferred.promise;
+		},
+		/*  Получить все курсы, которые не ведет данный преподаватель*/
+		getFreeCoursesForTeacher: function(teacherId){
+			var resource = $resource('/stcapp/json/freeCoursesForTeacher/:teacherId', {teacherId: '@teacherId'});			
+			var deferred = $q.defer();
+
+			resource.get({teacherId: teacherId},
+				function(data){
+					deferred.resolve(data.children);
+				},
+				function(response){
+					deferred.reject(response);
+				});
+
+			return deferred.promise;
+		},
+		/* Получить всех преподавателей, которые не ведут данный курс */
+		getFreeTeachersForCourse: function(courseId){
+			var resource = $resource('/stcapp/json/freeTeachersForCourse/:courseId', {courseId: '@courseId'});		
+			var deferred = $q.defer();
+
+			resource.get({courseId: courseId},
+				function(data){
+					deferred.resolve(data.children);
+				},
+				function(response){
+					deferred.reject(response);
+				});
+
+			return deferred.promise;
+		},
+		/*  Удалить связь курса и препода */
+		deleteTeacherCourseRelationship: function(courseId, teacherId){
+			var resource = $resource('/stcapp/json/deleteTeacherCourseRelationship/:courseIdteacherId', {courseIdteacherId: '@courseIdteacherId'});		
+			var deferred = $q.defer();
+
+			resource.delete({courseIdteacherId: courseId + ";" + teacherId},
+				function(data){
+					deferred.resolve(data);
+				},
+				function(response){
+					deferred.reject(response);
+				});
+
+			return deferred.promise;
+		},
+		/*  Добавить связь курса и препода */
+		addTeacherCourseRelationship: function(courseId, teacherId){
+			var resource = $resource('/stcapp/json/addTeacherCourseRelationship');
+			var deferred = $q.defer();
+
+			resource.save({Course: courseId, Teacher: teacherId},
+				function(data){
+					deferred.resolve(data);
+				},
+				function(response){
+					deferred.reject(response);
+				});
+
+			return deferred.promise;
+		}
+	}
+});
+]]></CSP>
+</Export>

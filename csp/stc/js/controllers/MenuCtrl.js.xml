@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<CSP name="stc/js/controllers/MenuCtrl.js" application="/csp/third/" default="1"><![CDATA[
+'use strict';
+//dddddddddddddd
+
+controllersModule.controller('MenuCtrl', function($scope, $location){
+   	console.log($location);
+    $scope.menu = {};
+    $scope.menu.init = function(){
+        $scope.menu.createOrder = {name: 'createOrder', css: 'active'};
+        $scope.menu.orders = {name: 'orders', css:''};
+        $scope.menu.active = $scope.menu.createOrder;
+    }
+
+    $scope.menu.click = function(menuItem){
+        if (menuItem.name == $scope.menu.active.name)
+            return;
+        
+        menuItem.css = 'active';
+        $scope.menu.active.css = '';
+        $scope.menu.active = menuItem
+    }
+    
+     $scope.menu.init();
+});
+
+]]></CSP>
+</Export>

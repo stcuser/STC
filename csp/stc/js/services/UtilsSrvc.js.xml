@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<CSP name="stc/js/services/UtilsSrvc.js" application="/csp/third/" default="1"><![CDATA[
+'use strict';
+//dd
+
+/*===========================================================================================
+Utils
+===========================================================================================*/
+servicesModule.factory('UtilsSrvc', function($dialog, $resource, $q) {
+	
+	return {
+		openMessageBox: function(title, msg, func){
+    		var btns = [{result: true, label: 'Ок', cssClass: 'btn-primary'}, {result: false, label: 'Отмена'}];
+
+    		$dialog.messageBox(title, msg, btns).open().then(function(result){
+    		 	if (result)
+    		 		func(); 
+    		 });
+    	},
+    	initDB: function(){
+    		var resource = $resource('/stcapp/json/initdb');
+			
+			var deferred = $q.defer();
+
+			resource.get(
+				function(data){
+					deferred.resolve(data);
+				},
+				function(response){
+					deferred.reject(response);
+				});
+
+			return deferred.promise;
+    	},
+    	getAlert: function(title, msg, eventType, visible){
+        	return {title: title,
+                    msg: msg,
+                    cssClass: 'alert alert-' + eventType,
+                    visible: visible};
+    	},
+        getIndexes: function(array, objField, valueField){
+            var indexes = [];
+            
+            if (!array) return indexes;
+            
+            for (var i = 0; i < array.length; i++) {
+                if (array[i][objField] == valueField)
+                    indexes.push(i);
+            };
+            return indexes;
+        },
+        getPropertyValue: function (item, propertyStr){
+            var value;
+            
+            try{
+                var properties = propertyStr.split('.');
+                
+                switch(properties.length){
+                    case 1:
+                        value = item[properties[0]];
+                        break;
+                    case 2:
+                        value = item[properties[0]][properties[1]];
+                        break;
+                    case 3:
+                        value = item[properties[0]][properties[1]][properties[2]];
+                        break;
+                    case 4:
+                        value = item[properties[0]][properties[1]][properties[2]][properties[3]];
+                        break;
+                    case 5:
+                        value = item[properties[0]][properties[1]][properties[2]][properties[3]][properties[4]];
+                        break;
+                }
+            }
+            catch(ex){
+                console.log('Такого свойства не существует ' + propertyStr);
+            }
+            
+            return value == undefined ? '' : value;
+        }
+    }
+});
+  
+]]></CSP>
+</Export>

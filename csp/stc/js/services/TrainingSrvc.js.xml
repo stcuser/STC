@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<CSP name="stc/js/services/TrainingSrvc.js" application="/csp/third/" default="1"><![CDATA[
+'use strict';
+//ddddd
+
+/*===========================================================================================
+
+===========================================================================================*/
+servicesModule.factory('TrainingSrvc', function($resource, $q) {
+	
+	return {
+        createTraining: function(trainingData){
+            var resource = $resource('/stcapp/admin/json/createTraining');
+            var deferred = $q.defer();
+            
+            resource.save(trainingData,
+                function(data){
+                    deferred.resolve(data);
+                },
+                function(response){
+                    deferred.reject(response);
+                });
+
+            return deferred.promise;
+        }
+    }
+});
+  
+]]></CSP>
+</Export>

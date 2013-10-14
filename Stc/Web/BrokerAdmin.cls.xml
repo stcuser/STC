@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<Class name="Stc.Web.BrokerAdmin">
+<Super>%CSP.REST</Super>
+<TimeCreated>63098,81405.67207</TimeCreated>
+
+<XData name="UrlMap">
+<Data><![CDATA[
+<Routes>
+	<!-- Получить все курсы, полная информация -->
+	<Route Method="GET" Url="/json/allCoursesFullInfo" Call="Stc.Web.JsonAdmin:GetCoursesFullInfo"/>
+	
+	<!--  -->
+	<Route Method="POST" Url="/json/allDirtyOrders" Call="Stc.Web.JsonAdmin:GetDirtyOrders"/>
+	
+	<!--  -->
+	<Route Method="GET" Url="/json/dirtyOrder/:id" Call="Stc.Web.JsonAdmin:GetDirtyOrder"/>
+	
+	<!--  -->
+	<Route Method="POST" Url="/json/saveContact" Call="Stc.Web.JsonAdmin:SaveContact"/>
+	
+	<!--  -->
+	<Route Method="POST" Url="/json/saveCompanyFromOrder" Call="Stc.Web.JsonAdmin:SaveCompanyFromOrder"/>
+	
+	<!--  -->
+	<Route Method="POST" Url="/json/createApprovedOrder" Call="Stc.Web.JsonAdmin:CreateApprovedOrder"/>
+	
+	<!--  -->
+	<Route Method="POST" Url="/json/allApprovedOrders" Call="Stc.Web.JsonAdmin:GetApprovedOrders"/>
+
+	<!--  -->
+	<Route Method="POST" Url="/json/changeOrderApprovedStatus" Call="Stc.Web.JsonAdmin:ChangeOrderApprovedStatus"/>	
+	
+	<!--  -->
+	<Route Method="GET" Url="/json/getStudentsFromOrders/:orderIdString" Call="Stc.Web.JsonAdmin:GetStudentsFromOrders"/>	
+	
+	
+	<!--  -->
+	<Route Method="GET" Url="/json/checkAdmin" Call="Stc.Web.JsonAdmin:CheckAdmin"/>	
+	
+	<!--  -->
+	<Route Method="POST" Url="/json/createTraining" Call="Stc.Web.JsonAdmin:createTraining"/>	
+	
+	<!--  -->
+	<Route Method="GET" Url="/json/deleteOrder/:id" Call="Stc.Web.JsonAdmin:DeleteOrder"/>
+	
+	<!--  -->
+	<Route Method="POST" Url="/json/resolveContactConflict" Call="Stc.Web.JsonAdmin:ResolveContactConflict"/>	
+</Routes>
+]]></Data>
+</XData>
+
+<Method name="Http404">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	&html<<h1>Страница не найдена. 404</h1>>
+	quit $$$OK
+]]></Implementation>
+</Method>
+</Class>
+</Export>

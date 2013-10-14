@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<CSP name="stc/js/services/RegionSrvc.js" application="/csp/third/" default="1"><![CDATA[
+'use strict';
+//d
+
+/*===========================================================================================
+Регионы
+===========================================================================================*/
+servicesModule.factory('RegionSrvc', function($resource, $q) {
+	
+	return {
+	    /*  */
+        getAllCitiesStartsWith: function(startsWith){
+            var resource = $resource('/stcapp/user/json/citiesStartsWith/:startsWith', {startsWith: '@startsWith'});
+            var deferred = $q.defer();
+
+            resource.get({startsWith: startsWith},
+                function(data){
+                    deferred.resolve(data.children);
+                },
+                function(response){
+                    deferred.reject(response);
+                });
+
+            return deferred.promise;
+        }
+    }
+});
+  
+]]></CSP>
+</Export>

@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<CSP name="stc/partials/updateorder.csp" application="/csp/third/" default="1"><![CDATA[
+<div class="row-fluid" ng-show="ordForm.visible">
+	<div class="span1">
+	</div>
+	<div class="span10">
+		<tabset>
+    		<tab heading="Заявка">
+    			<div class="row-fluid">
+					<div class="span6">
+						<b>Компания: </b>{{ordForm.order.contact.company.shortName}}</br></br>
+						<b>Партнер: </b>{{ordForm.order.contact.partner}}</br></br>
+						<b>Контакт: </b>{{ordForm.order.contact.lastName + ' ' + ordForm.order.contact.firstName + ' ' + ordForm.order.contact.middleName}}</br></br>
+						<b>Email: </b>{{ordForm.order.contact.email}}</br></br>
+						<b>Телефон: </b>{{ordForm.order.contact.phone}}</br></br>
+						<b>Skype: </b>{{ordForm.order.contact.skype}}</br></br>	
+					</div>
+					<div class="span6">
+						<b>Курс: </b>{{ordForm.order.course.name}}</br></br>
+						<b>Город: </b>{{ordForm.order.city.name + ', ' + ordForm.order.city.parentName + ', ' + ordForm.order.city.greatParentName}}</br></br>
+						<b>Число слушателей: </b>{{ordForm.studTable.items.length}}</br></br>
+						<b>Дата обучения: </b>{{ordForm.order.date}}</br></br>
+						<button class="btn btn-primary" ng-show="ordForm.order.status==2" ng-disabled="!formCompany.$valid || formCompany.$dirty" ng-click="ordForm.finishEditing()">Завершить редактирование</button></br></br>
+						<div ng-hide="formCompany.$valid">
+							<span class="label label-important">Не все данные о компании заполнены!</span>
+							</br>
+							</br>
+						</div>
+						<span class="label label-important" ng-show="formCompany.$dirty">Изменения в компании не были зафиксированы!</span>
+					</div>		
+				</div>
+				<pre ng-show="ordForm.admin">/*Заказчик сможет получить доступ только к "Одобренной" заявке. Заказчик не сможет редактировать короткое имя компании и не увидит ссылку 'Вернуться к заявкам'. Заказчик не сможет получить доступ к заявке после завершения редактирования. Тут уже сам админ должен выслать повторно заказчику обновленный код доступа к заявке. В "Закрытые" заявки добавлять/редактироать/удалять слушателей нельзя. <a ng-show="true" style="cursor: pointer;" ng-href="#/updateorder?code={{ordForm.order.code}}"><i>Посмотреть как заказчик</i></a>*/</pre>	
+    		</tab>
+    		<tab heading="Компания">
+    			<form name="formCompany" ng-submit="ordForm.saveCompany()">
+					<stccompany company="ordForm.order.contact.company" required-all="true" disable-short-name="!ordForm.admin"/>
+					<button class="btn btn-primary" type="submit" ng-disabled="!formCompany.$dirty">Сохранить</button>
+				</form>
+    		</tab>
+    		<tab heading="Слушатели" active="ordForm.studTable.active">
+    			<stcgrid
+				    table-class="table table-bordered table-hover"
+				    caption=""
+				    columns="ordForm.studTable.columns"
+				    items="ordForm.studTable.items"
+				    properties="ordForm.studTable.properties"
+				    update-items="ordForm.studTable.loadItems(pageCurr, pageSize, sqlName, isDown, searchSqlName, searchText, status)"
+
+				    page-curr="ordForm.studTable.pageCurr"
+				    page-total="ordForm.studTable.pageTotal"
+				    page-size="ordForm.studTable.pageSize"
+				    navigator-visible="true"
+
+				    selectable="true"
+				    selected-items="ordForm.studTable.selectedItems"
+				    multi-select-mode="ordForm.studTable.multiSelectMode"
+
+
+				    action-column-visible="ordForm.order.status!=4"
+				    action-column-icon="icon-plus-sign"
+				    action-column-title="Добавить"
+				    action-column-method="ordForm.studTable.add()"
+
+				    first-row-action-icon="icon-pencil"
+				    first-row-action-title="Редактировать"
+				    first-row-action-method="ordForm.studTable.edit(item)"
+				    
+				    second-row-action-icon="icon-trash"
+				    second-row-action-title="Удалить"
+				    second-row-action-method="ordForm.studTable.delete(item)"
+				    
+				    forcibly-update="ordForm.studTable.forciblyUpdate" 
+				/>
+				<pre ng-show="ordForm.admin">/*Добавление нового слушателя: если такого email нет, то создается слушатель; если есть совпадение по email, то добавляется в список тот человек(а он может быть привязан к другой компании). Удаление слушателя из заявки: если слушатель в других таблицах не встречается, то удаляем и из списка, и из базы.*/</pre>
+    		</tab>
+    	</tabset>
+	</div>
+	<div class="span1">
+	</div >
+</div>
+<stcalert data="ordForm.alert" span-right="1" span-middle="10" span-left="1"/>
+<div class="row-fluid" ng-show="ordForm.admin">
+	<div class="span1">
+	</div>
+	<div class="span10">
+		<a ng-show="true" style="cursor: pointer;" ng-click="ordForm.backToOrders()"><i>Вернуться к заявкам</i></a></br></br>
+	</div>
+	<div class="span1">
+	</div>
+</div>
+]]></CSP>
+</Export>

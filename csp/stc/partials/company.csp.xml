@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<CSP name="stc/partials/company.csp" application="/csp/third/" default="1"><![CDATA[
+<stcalert data="alert" span-right="1" span-middle="10" span-left="1"/>
+
+<div ng-show="compForm.visible">
+	<div class="row-fluid">
+		<div class="span1">
+		</div>
+		<div class="span10">
+			<form class="form" ng-submit="compForm.save()">
+				<fieldset  class="scheduler-border">
+					<legend  class="scheduler-border" ng-bind="compForm.caption"></legend>
+						<stccompany company="compForm.company" required-all="false" disable-short-name="false"/>
+					<button class="btn btn-primary" type="submit">Сохранить</button>
+				</fieldset>
+			</form>
+		</div>
+		<div class="span1">
+		</div>
+	</div>
+
+	<stcalert data="compForm.alert" span-right="1" span-middle="10" span-left="1"/>
+
+	<div class="row-fluid">
+		<div class="span1">
+		</div>
+		<div class="span10">
+			<form class="form" ng-submit="">
+				<fieldset  class="scheduler-border">
+					<legend  class="scheduler-border">Контактное лицо</legend>
+						<b>ФИО: </b> {{compForm.contact.lastName + ' ' + compForm.contact.firstName + ' ' + compForm.contact.middleName}}</br></br>
+						<b>Email: </b>{{compForm.contact.email}}</br></br>
+						<b>Телефон: </b>{{compForm.contact.phone}}</br></br>
+						<b>Skype: </b>{{compForm.contact.skype}}</br></br>
+					<button class="btn btn-primary" type="submit" ng-show="compForm.contact.actionVisible">Редактировать</button>
+					<button class="btn btn-primary" type="submit" ng-show="compForm.contact.actionVisible">Сменить контакт</button>
+				</fieldset>
+			</form>
+		</div>
+		<div class="span1">
+		</div>
+	</div>
+</div>
+]]></CSP>
+</Export>

@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<Class name="Stc.Data.Company">
+<Description>
+Компания - заказчик</Description>
+<Super>%Persistent,%XML.Adaptor</Super>
+<TimeCreated>63098,13287.262923</TimeCreated>
+
+<Property name="FullName">
+<Description>
+Полное название компании</Description>
+<Type>%String</Type>
+<Parameter name="MAXLEN" value="500"/>
+</Property>
+
+<Property name="ShortName">
+<Description>
+Короткая форма названия</Description>
+<Type>%String</Type>
+<Required>1</Required>
+<Parameter name="MAXLEN" value="500"/>
+</Property>
+
+<Property name="SettlementAccount">
+<Description>
+Расчётный счёт</Description>
+<Type>%String</Type>
+<Parameter name="MAXLEN" value="1000"/>
+</Property>
+
+<Property name="CorrespondentAccount">
+<Description>
+Корреспондентский счёт</Description>
+<Type>%String</Type>
+<Parameter name="MAXLEN" value="1000"/>
+</Property>
+
+<Property name="BIC">
+<Description>
+Банковский идентификационный код</Description>
+<Type>%String</Type>
+<Parameter name="MAXLEN" value="500"/>
+</Property>
+
+<Property name="KPP">
+<Description>
+Код причины постановки на учёт</Description>
+<Type>%String</Type>
+<Parameter name="MAXLEN" value="500"/>
+</Property>
+
+<Property name="INN">
+<Description>
+Идентификационный номер налогоплательщика</Description>
+<Type>%String</Type>
+<Parameter name="MAXLEN" value="500"/>
+</Property>
+
+<Property name="OGRN">
+<Description>
+Основной государственный регистрационный номер</Description>
+<Type>%String</Type>
+<Parameter name="MAXLEN" value="500"/>
+</Property>
+
+<Property name="LegalAddress">
+<Description>
+Юридический адрес</Description>
+<Type>%String</Type>
+<Parameter name="MAXLEN" value="1500"/>
+</Property>
+
+<Property name="MailAddress">
+<Description>
+Почтовый адрес</Description>
+<Type>%String</Type>
+<Parameter name="MAXLEN" value="500"/>
+</Property>
+
+<Property name="Contact">
+<Description>
+Контактное лицо</Description>
+<Type>Person</Type>
+<Parameter name="XMLREFERENCE" value="ID"/>
+</Property>
+
+<Property name="WebSite">
+<Description>
+Веб сайт</Description>
+<Type>%String</Type>
+<Parameter name="MAXLEN" value="500"/>
+</Property>
+
+<Property name="OtherInfo">
+<Description>
+Другая информация</Description>
+<Type>%Text</Type>
+<Parameter name="MAXLEN" value="3000"/>
+</Property>
+
+<Property name="Employees">
+<Type>Stc.Data.Person</Type>
+<Cardinality>many</Cardinality>
+<Inverse>Company</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Method name="GetProxyObject">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>id:%String</FormalSpec>
+<ReturnType>%ZEN.proxyObject</ReturnType>
+<Implementation><![CDATA[
+	set obj = ..%OpenId(id)
+	quit obj.ConvertToProxyObject()
+]]></Implementation>
+</Method>
+
+<Method name="ConvertToProxyObject">
+<FormalSpec>shortInfo:%Boolean=0</FormalSpec>
+<ReturnType>%ZEN.proxyObject</ReturnType>
+<Implementation><![CDATA[
+	set proxy = ##class(%ZEN.proxyObject).%New()
+	
+	set proxy.id = ..%Id()
+	set proxy.shortName = ..ShortName
+	set proxy.site = ..WebSite
+	
+	if (shortInfo = 1) quit proxy
+	
+	set proxy.fullName = ..FullName
+	set proxy.settlementAccount = ..SettlementAccount
+	set proxy.correspondentAccount = ..CorrespondentAccount
+	set proxy.bic = ..BIC
+	set proxy.kpp= ..KPP
+	set proxy.inn = ..INN
+	set proxy.ogrn = ..OGRN
+	set proxy.legalAddress = ..LegalAddress
+	set proxy.mailAddress = ..MailAddress
+	set proxy.otherInfo = ..OtherInfo
+	
+	set proxy.contact = ..Contact.ConvertToProxyObject()
+	
+	quit proxy
+]]></Implementation>
+</Method>
+
+<Method name="Create">
+<ClassMethod>1</ClassMethod>
+<FormalSpec><![CDATA[data:%RegisteredObject,&status]]></FormalSpec>
+<ReturnType>Stc.Data.Company</ReturnType>
+<Implementation><![CDATA[
+	set company = ..%New()
+			
+	try{
+		TSTART
+		
+		do company.SetData(data)
+		$$$THROWONERROR(status, company.%Save())
+		
+		TCOMMIT
+	}
+	catch ex {
+		TROLLBACK
+		set status = ex.AsStatus()
+	}
+
+	quit company
+]]></Implementation>
+</Method>
+
+<Method name="Update">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>company:Company="",data:%RegisteredObject</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	set status = $$$OK
+	
+	try{
+		TSTART
+		
+		if (company = "") set company = ..%OpenId(data.id)	
+		
+		do company.SetData(data)
+		$$$THROWONERROR(status, company.%Save())
+		
+		TCOMMIT
+	}
+	catch ex{
+		TROLLBACK
+		set status = ex.AsStatus()
+	}
+	
+	quit status
+]]></Implementation>
+</Method>
+
+<Method name="SetData">
+<FormalSpec>data:%RegisteredObject</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	set ..ShortName = $ZCONVERT(data.shortName, "I","UTF8")
+	set ..FullName = $ZCONVERT(data.fullName, "I","UTF8")
+	set ..BIC = $ZCONVERT(data.bic, "I","UTF8")
+	set ..OGRN = $ZCONVERT(data.ogrn, "I","UTF8")
+	set ..INN = $ZCONVERT(data.inn, "I","UTF8")
+	set ..SettlementAccount = $ZCONVERT(data.settlementAccount, "I","UTF8")
+	set ..CorrespondentAccount = $ZCONVERT(data.correspondentAccount, "I","UTF8")	
+	set ..KPP = $ZCONVERT(data.kpp, "I","UTF8")
+	set ..LegalAddress = $ZCONVERT(data.legalAddress, "I","UTF8")
+	set ..MailAddress = $ZCONVERT(data.mailAddress, "I","UTF8")
+	set ..OtherInfo = $ZCONVERT(data.otherInfo, "I","UTF8")	
+	set ..WebSite = $ZCONVERT(data.site, "I","UTF8")	
+	
+	quit $$$OK
+]]></Implementation>
+</Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DataLocation>^Stc.Data.CompanyD</DataLocation>
+<DefaultData>CompanyDefaultData</DefaultData>
+<IdLocation>^Stc.Data.CompanyD</IdLocation>
+<IndexLocation>^Stc.Data.CompanyI</IndexLocation>
+<StreamLocation>^Stc.Data.CompanyS</StreamLocation>
+<ExtentSize>100000</ExtentSize>
+<Data name="CompanyDefaultData">
+<Value name="1">
+<Value>%%CLASSNAME</Value>
+</Value>
+<Value name="2">
+<Value>FullName</Value>
+</Value>
+<Value name="3">
+<Value>ShortName</Value>
+</Value>
+<Value name="4">
+<Value>SettlementAccount</Value>
+</Value>
+<Value name="5">
+<Value>CorrespondentAccount</Value>
+</Value>
+<Value name="6">
+<Value>BIC</Value>
+</Value>
+<Value name="7">
+<Value>KPP</Value>
+</Value>
+<Value name="8">
+<Value>INN</Value>
+</Value>
+<Value name="9">
+<Value>OGRN</Value>
+</Value>
+<Value name="10">
+<Value>LegalAddress</Value>
+</Value>
+<Value name="11">
+<Value>MailAddress</Value>
+</Value>
+<Value name="12">
+<Value>Contact</Value>
+</Value>
+<Value name="13">
+<Value>WebSite</Value>
+</Value>
+<Value name="14">
+<Value>OtherInfo</Value>
+</Value>
+</Data>
+</Storage>
+</Class>
+</Export>

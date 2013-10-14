@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<CSP name="stc/js/services/CompanySrvc.js" application="/csp/third/" default="1"><![CDATA[
+'use strict';
+//ddddd
+
+/*===========================================================================================
+Компании
+===========================================================================================*/
+servicesModule.factory('CompanySrvc', function($resource, $q) {
+	
+	return {
+	    /* Получить*/
+        getAllCompaniesShortInfo: function(){
+            var resource = $resource('/stcapp/user/json/allCompaniesShortInfo');
+            var deferred = $q.defer();
+
+            resource.get(
+                function(data){
+                    deferred.resolve(data.children);
+                },
+                function(response){
+                    deferred.reject(response);
+                });
+
+            return deferred.promise;
+        },
+        saveCompanyFromOrder: function(company, contact, orderId){
+            var resource = $resource('/stcapp/admin/json/saveCompanyFromOrder');
+            var deferred = $q.defer();
+
+            resource.save({company: company, contact: contact, orderId: orderId},
+                function(data){
+                    deferred.resolve(data);
+                },
+                function(response){
+                    deferred.reject(response);
+                });
+
+            return deferred.promise;
+        },
+        saveCompanyByCode: function(company, accessCode){
+            var resource = $resource('/stcapp/user/json/saveCompany');
+            var deferred = $q.defer();
+            
+            resource.save({company: company, order: {code: accessCode}},
+                function(data){
+                    deferred.resolve(data);
+                },
+                function(response){
+                    deferred.reject(response);
+                });
+
+            return deferred.promise;
+        },
+        resolveContactConflict: function(conflictData, isReplace){
+            var resource = $resource('/stcapp/admin/json/resolveContactConflict');
+            var deferred = $q.defer();
+            
+            resource.save({conflictData: conflictData, isReplace: isReplace},
+                function(data){
+                    deferred.resolve(data);
+                },
+                function(response){
+                    deferred.reject(response);
+                });
+
+            return deferred.promise;
+        }
+
+    }
+});
+  
+]]></CSP>
+</Export>

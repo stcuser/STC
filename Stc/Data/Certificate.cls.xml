@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<Class name="Stc.Data.Certificate">
+<Description>
+Сертификат слушателя</Description>
+<Super>%Persistent</Super>
+<TimeCreated>63098,13360.224443</TimeCreated>
+
+<Property name="Number">
+<Description>
+Уникальный номер сертификата</Description>
+<Type>%String</Type>
+<Required>1</Required>
+</Property>
+
+<Property name="Training">
+<Description>
+Обучение</Description>
+<Type>Training</Type>
+<Required>1</Required>
+</Property>
+
+<Property name="Student">
+<Description>
+Слушатель</Description>
+<Type>Person</Type>
+<Required>1</Required>
+</Property>
+
+<Property name="CreatedDate">
+<Description>
+Дата создания сертификата</Description>
+<Type>%Date</Type>
+<Required>1</Required>
+</Property>
+
+<Property name="IsPrinted">
+<Description>
+Сертификат был распечатан</Description>
+<Type>%Boolean</Type>
+<Required>1</Required>
+</Property>
+
+<Index name="NumberIdx">
+<Properties>Number</Properties>
+<Unique>1</Unique>
+</Index>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DataLocation>^Stc.Data.CertificateD</DataLocation>
+<DefaultData>CertificateDefaultData</DefaultData>
+<IdLocation>^Stc.Data.CertificateD</IdLocation>
+<IndexLocation>^Stc.Data.CertificateI</IndexLocation>
+<StreamLocation>^Stc.Data.CertificateS</StreamLocation>
+<ExtentSize>100000</ExtentSize>
+<Data name="CertificateDefaultData">
+<Value name="1">
+<Value>%%CLASSNAME</Value>
+</Value>
+<Value name="2">
+<Value>Number</Value>
+</Value>
+<Value name="3">
+<Value>Training</Value>
+</Value>
+<Value name="4">
+<Value>Student</Value>
+</Value>
+<Value name="5">
+<Value>CreatedDate</Value>
+</Value>
+<Value name="6">
+<Value>IsPrinted</Value>
+</Value>
+</Data>
+</Storage>
+</Class>
+</Export>

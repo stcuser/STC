@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<CSP name="stc/js/controllers/MainCtrl.js" application="/csp/third/" default="1"><![CDATA[
+'use strict';
+//dddddexddrdd
+
+controllersModule.controller('MainCtrl', function($scope, $resource){
+   	$scope.menu = {admin: true};
+    
+    $scope.menu.init = function(){
+        $scope.menu.createOrder = {id: 'createOrder',name: 'Создать заявку', css: ''};
+        $scope.menu.orders = {id: 'orders', name: 'Заявки', css:''};
+    }
+
+    $scope.menu.selectMenu = function(menuId){
+        console.log('selectMenu='+ menuId);
+        if (!$scope.menu.active || $scope.menu.active.id == menuId){
+            $scope.menu.active = $scope.menu[menuId];
+            $scope.menu.active.css = 'active';
+        }
+        else{
+            $scope.menu[menuId].css = 'active';
+            $scope.menu.active.css = '';
+            $scope.menu.active = $scope.menu[menuId];
+        }
+
+    }
+
+    $scope.menu.login = function(){
+        /*
+        var resource = $resource('/stcapp/admin/json/checkAdmin');
+        
+        resource.get(
+            function(data){
+                $scope.menu.admin = true;
+            },
+            function(response){
+                $scope.menu.admin = false;
+            });*/
+    }
+    
+    $scope.menu.init();
+});
+
+]]></CSP>
+</Export>

@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<Class name="Stc.Web.Json">
+<TimeCreated>63099,7625.766078</TimeCreated>
+
+<Method name="WriteJsonFromSql">
+<Description>
+Преобразовать запрос в json</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>sql:%String</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+  	set status = $$$OK
+  	
+   	try{
+	   	do ##class(%ZEN.Auxiliary.jsonSQLProvider).%WriteJSONFromSQL(,sql)
+	}
+	catch ex{
+		set status = ex.AsStatus()
+	}
+	
+  	quit status
+]]></Implementation>
+</Method>
+
+<Method name="WriteJsonForGrid">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>sql:%String,className:%String,params:%RegisteredObject,whereRequired:%String=""</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	set status = $$$OK
+	
+	try{
+		if (whereRequired = "") && (params.searchText '= ""){
+			set sql = sql_" WHERE "_params.searchSqlName_" LIKE '%"_$ZCONVERT(params.searchText, "I","UTF8")_"%'"
+		}
+		elseif (whereRequired '= "") && (params.searchText = ""){
+			set sql = sql_" WHERE "_whereRequired
+		}
+		elseif (whereRequired '= "") && (params.searchText '= ""){
+			set sql = sql_" WHERE "_whereRequired_" AND "_params.searchSqlName_" LIKE '%"_$ZCONVERT(params.searchText, "I","UTF8")_"%'"
+		}
+		
+		set isDown = "ASC"
+		if (params.isDown '= 1) set isDown = "DESC"
+		
+		set sql = sql_" ORDER BY "_params.sqlName_" "_isDown
+		
+			
+		set statement = ##class(%SQL.Statement).%New()	
+		$$$THROWONERROR(status, statement.%Prepare(sql))		
+		set rs = statement.%Execute()
+		
+		set proxyItems = ##class(%ListOfObjects).%New()			
+		
+		while (rs.%Next() '= 0){
+			if (rs.%ROWCOUNT >= params.first) && (rs.%ROWCOUNT <= params.last){
+				do proxyItems.Insert($CLASSMETHOD(className, "GetProxyObject", rs.%GetData(1)))
+			}
+		}
+		set itemsTotal = rs.%ROWCOUNT
+		
+		do rs.%Close()						
+		do statement.%Close()
+		
+		set proxyResult = ##class(%ZEN.proxyObject).%New()
+		set proxyResult.children = ##class(%ZEN.proxyObject).%New()
+		set proxyResult.children.items = proxyItems
+	    set proxyResult.children.itemsTotal = itemsTotal
+	    do proxyResult.%ToJSON()
+	}
+	catch ex{
+		set status = ex.AsStatus()	
+	}
+	
+	quit status
+]]></Implementation>
+</Method>
+</Class>
+</Export>

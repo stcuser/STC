@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<Class name="Stc.Data.Course">
+<Description>
+Курс</Description>
+<Super>%Persistent,%XML.Adaptor</Super>
+<TimeCreated>63098,13286.897066</TimeCreated>
+
+<Property name="Name">
+<Description>
+Название</Description>
+<Type>%String</Type>
+<Parameter name="MAXLEN" value="500"/>
+</Property>
+
+<Property name="Hours">
+<Description>
+Продолжительность в часах</Description>
+<Type>%Integer</Type>
+</Property>
+
+<Property name="Days">
+<Description>
+Продолжительность в днях</Description>
+<Type>%Integer</Type>
+</Property>
+
+<Property name="ProgrammUrl">
+<Description>
+Ссылка на программу курса</Description>
+<Type>%String</Type>
+<Parameter name="MAXLEN" value="1500"/>
+</Property>
+
+<Property name="Teachers">
+<Description>
+Преподаватели</Description>
+<Type>Person</Type>
+<Collection>array</Collection>
+</Property>
+
+<Method name="GetProxyObject">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>id:%String</FormalSpec>
+<ReturnType>%ZEN.proxyObject</ReturnType>
+<Implementation><![CDATA[
+	set obj = ..%OpenId(id)
+	quit obj.ConvertToProxyObject()
+]]></Implementation>
+</Method>
+
+<Method name="ConvertToProxyObject">
+<FormalSpec>shortInfo:%Boolean=0</FormalSpec>
+<ReturnType>%ZEN.proxyObject</ReturnType>
+<Implementation><![CDATA[
+	set proxy = ##class(%ZEN.proxyObject).%New()
+	
+	set proxy.id = ..%Id()
+	set proxy.name = ..Name
+	
+	if (shortInfo = 1) quit proxy
+	
+	set proxy.days = ..Days
+	set proxy.hours = ..Hours
+	set proxy.programmUrl = ..ProgrammUrl
+	
+	quit proxy
+]]></Implementation>
+</Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DataLocation>^Stc.Data.CourseD</DataLocation>
+<DefaultData>CourseDefaultData</DefaultData>
+<IdLocation>^Stc.Data.CourseD</IdLocation>
+<IndexLocation>^Stc.Data.CourseI</IndexLocation>
+<StreamLocation>^Stc.Data.CourseS</StreamLocation>
+<ExtentSize>100000</ExtentSize>
+<Data name="CourseDefaultData">
+<Value name="1">
+<Value>%%CLASSNAME</Value>
+</Value>
+<Value name="2">
+<Value>Name</Value>
+</Value>
+<Value name="3">
+<Value>Hours</Value>
+</Value>
+<Value name="4">
+<Value>Days</Value>
+</Value>
+<Value name="5">
+<Value>ProgrammUrl</Value>
+</Value>
+</Data>
+<Data name="Teachers">
+<Attribute>Teachers</Attribute>
+<Structure>subnode</Structure>
+<Subscript>"Teachers"</Subscript>
+</Data>
+</Storage>
+</Class>
+</Export>

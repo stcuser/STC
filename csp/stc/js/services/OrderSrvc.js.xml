@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<CSP name="stc/js/services/OrderSrvc.js" application="/csp/third/" default="1"><![CDATA[
+'use strict';
+//ddddddddds
+
+/*===========================================================================================
+Заявки
+===========================================================================================*/
+servicesModule.factory('OrderSrvc', function($resource, $q) {
+	
+	return {
+	    /*  */
+        createOrder: function(order){
+            var resource = $resource('/stcapp/user/json/createOrder');
+            var deferred = $q.defer();
+
+            resource.save(order,
+                function(data){
+                    deferred.resolve(data);
+                },
+                function(response){
+                    deferred.reject(response);
+                });
+
+            return deferred.promise;
+        },
+        deleteOrder: function(id){
+            var resource = $resource('/stcapp/admin/json/deleteOrder/:id', {id: '@id'});
+            var deferred = $q.defer();
+
+            resource.get({id: id},
+                function(data){
+                    deferred.resolve(data);
+                },
+                function(response){
+                    deferred.reject(response);
+                });
+
+            return deferred.promise;
+        },
+        createApprovedOrder: function(orderId){
+            var resource = $resource('/stcapp/admin/json/createApprovedOrder');
+            var deferred = $q.defer();
+            console.log('orderId=' + orderId);
+
+            resource.save({id: orderId},
+                function(data){
+                    deferred.resolve(data);
+                },
+                function(response){
+                    deferred.reject(response);
+                });
+
+            return deferred.promise;
+        },
+        getDirtyOrders: function(pageCurr, pageSize, sqlName, isDown, searchSqlName, searchText, status){
+            var resource = $resource('/stcapp/admin/json/allDirtyOrders');
+            var deferred = $q.defer();
+
+            var first = pageSize * (pageCurr - 1) + 1;
+            resource.save({sqlName: sqlName, 
+                           isDown: isDown, 
+                           first: first, 
+                           last: first + pageSize - 1,
+                           searchSqlName: searchSqlName, 
+                           searchText: searchText},
+                function(data){
+                    deferred.resolve(data.children);
+                },
+                function(response){
+                    deferred.reject(response);
+                });
+
+            return deferred.promise;
+        },
+        getApprovedOrders: function(pageCurr, pageSize, sqlName, isDown, searchSqlName, searchText, status){
+            var resource = $resource('/stcapp/admin/json/allApprovedOrders');
+            var deferred = $q.defer();
+
+
+            var first = pageSize * (pageCurr - 1) + 1;
+
+            resource.save({sqlName: sqlName, 
+                           isDown: isDown, 
+                           first: first, 
+                           last: first + pageSize - 1,
+                           searchSqlName: searchSqlName, 
+                           searchText: searchText,
+                           status: parseInt(status)},
+                function(data){
+                    deferred.resolve(data.children);
+                },
+                function(response){
+                    deferred.reject(response);
+                });
+
+            return deferred.promise;
+        },
+        getDirtyOrder: function(id){
+            var resource = $resource('/stcapp/admin/json/dirtyOrder/:id', {id: '@id'});
+            var deferred = $q.defer();
+
+            resource.get({id: id},
+                function(data){
+                    deferred.resolve(data);
+                },
+                function(response){
+                    deferred.reject(response);
+                });
+
+            return deferred.promise;
+        },
+        getApprovedOrderByCode: function(code){
+            var resource = $resource('/stcapp/user/json/approvedOrderInfo/:code', {code: '@code'});
+            var deferred = $q.defer();
+
+            resource.get({code: code},
+                function(data){
+                    deferred.resolve(data);
+                },
+                function(response){
+                    deferred.reject(response);
+                });
+
+            return deferred.promise;
+        },
+        getApprovedOrderStudentsByCode: function(code, pageCurr, pageSize, sqlName, isDown, searchSqlName, searchText){
+            var resource = $resource('/stcapp/user/json/approvedOrderStudents');
+            var deferred = $q.defer();
+
+            var first = pageSize * (pageCurr - 1) + 1;
+
+            resource.save({sqlName: sqlName, 
+                           isDown: isDown, 
+                           first: first, 
+                           last: first + pageSize - 1,
+                           searchSqlName: searchSqlName, 
+                           searchText: searchText,
+                           code: code},
+                function(data){
+                    deferred.resolve(data.children);
+                },
+                function(response){
+                    deferred.reject(response);
+                });
+
+            return deferred.promise;
+        },
+        finishEditingOrder: function(accessCode){
+            var resource = $resource('/stcapp/user/json/finishEditingOrder');
+            var deferred = $q.defer();
+            
+            resource.save({code: accessCode},
+                function(data){
+                    deferred.resolve(data);
+                },
+                function(response){
+                    deferred.reject(response);
+                });
+
+            return deferred.promise;
+        },
+        changeOrderApprovedStatus: function(accessCode, status){
+            var resource = $resource('/stcapp/admin/json/changeOrderApprovedStatus');
+            var deferred = $q.defer();
+            
+            resource.save({code: accessCode, status: status},
+                function(data){
+                    deferred.resolve(data);
+                },
+                function(response){
+                    deferred.reject(response);
+                });
+
+            return deferred.promise;
+        },
+        getStudentsFromOrders: function(orderIdString){
+            var resource = $resource('/stcapp/admin/json/getStudentsFromOrders/:orderIdString', {orderIdString: '@orderIdString'});
+            var deferred = $q.defer();
+            console.log('sss=' + orderIdString); 
+            resource.get({orderIdString: orderIdString},
+                function(data){
+                    deferred.resolve(data.children);
+                },
+                function(response){
+                    deferred.reject(response);
+                });
+
+            return deferred.promise;
+        }
+    }
+});
+  
+]]></CSP>
+</Export>

@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<CSP name="stc/js/controllers/OrderCtrl.js" application="/csp/third/" default="1"><![CDATA[
+'use strict';
+//ddddddd
+
+controllersModule.controller('OrderCtrl', function($scope, OrderSrvc, CompanySrvc, RegionSrvc, CourseTeacherSrvc, UtilsSrvc){
+    $scope.menu.selectMenu('createOrder');
+    
+    $scope.ordForm = {};
+    $scope.ordForm.cities = [];
+    $scope.ordForm.courses = [];
+    $scope.ordForm.companies = [];
+    $scope.ordForm.caption = 'Создание заявки';
+        
+    $scope.ordForm.init = function(){
+        $scope.alert = {visible: false};
+        //$scope.ordForm.order = {contact:{firstName: "Олег", lastName: "Петров", middleName: "Васильевич", email: "stc_testmail@mail.ru", phone: "+7989898823", partner: "PARTER", skype: "skypeLogin"}, course: {id: 1}, date:"12-12-2012", studentsNumber: 13 };
+    };
+
+    $scope.ordForm.loadCourses = function(){
+        CourseTeacherSrvc.getAllCoursesShortInfo().then(
+            function(data){
+                $scope.ordForm.courses = data;
+            },
+            function(response){
+                $scope.alert = UtilsSrvc.getAlert('Ошибка !', response.data, 'error', true);
+            }); 
+    };
+
+    $scope.ordForm.loadCities = function(startsWith){
+        if(!startsWith || startsWith.length == 0)
+            $scope.ordForm.cities = [];
+        
+        if (startsWith.length != 2)
+            return;  
+
+        RegionSrvc.getAllCitiesStartsWith(startsWith).then(
+            function(data){
+                $scope.ordForm.cities = data;
+            },
+            function(response){
+                $scope.alert = UtilsSrvc.getAlert('Ошибка !', response.data, 'error', true);
+            }); 
+    };
+
+    $scope.ordForm.loadCompanies = function(){
+        CompanySrvc.getAllCompaniesShortInfo().then(
+            function(data){
+                $scope.ordForm.companies = data;
+            },
+            function(response){
+                $scope.alert = UtilsSrvc.getAlert('Ошибка !', response.data, 'error', true);
+            }); 
+    };
+
+    $scope.ordForm.submit = function(){
+        OrderSrvc.createOrder($scope.ordForm.order).then(
+            function(data){
+                $scope.alert = UtilsSrvc.getAlert('Готово !', 'Ваша заявка принята', 'success', true);
+            },
+            function(response){
+                $scope.alert = UtilsSrvc.getAlert('Ошибка !', response.data, 'error', true);
+            }); 
+    };
+
+    $scope.ordForm.switchCity = function(exist){
+        $scope.ordForm.cityExist = exist;
+
+        if (exist)
+            $scope.ordForm.order.city.notexist = '';
+        else
+            $scope.ordForm.order.city.exist = '';
+    };
+
+    $scope.ordForm.loadCourses();
+    $scope.ordForm.loadCompanies();
+    $scope.ordForm.init();
+  });
+
+]]></CSP>
+</Export>

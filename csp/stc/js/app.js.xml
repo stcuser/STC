@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<CSP name="stc/js/app.js" application="/csp/third/" default="1"><![CDATA[
+'use strict';
+//dfddj
+
+
+var servicesModule    = angular.module('servicesModule', ['ngResource']);
+var controllersModule = angular.module('controllersModule', ['servicesModule']);
+var directivesModule  = angular.module('directivesModule', []);
+var mainModule        = angular.module('mainModule', ['ui.bootstrap', 'servicesModule', 'controllersModule', 'directivesModule']);
+
+mainModule.config(['$routeProvider', function($routeProvider) {
+	$routeProvider.when('/createorder', {templateUrl: 'partials/createorder.csp', controller: 'OrderCtrl'});
+	$routeProvider.when('/updateorder', {templateUrl: 'partials/updateorder.csp', controller: 'UpdateOrderCtrl'});
+	$routeProvider.when('/orders', {templateUrl: 'partials/orders.csp', controller: 'AllOrdersCtrl'});
+	$routeProvider.when('/company', {templateUrl: 'partials/company.csp', controller: 'CompanyCtrl'});
+    $routeProvider.when('/person', {templateUrl: 'partials/person.csp', controller: 'PersonCtrl'});
+    $routeProvider.otherwise({redirectTo: '/createorder'});
+  }]);
+
+]]></CSP>
+</Export>

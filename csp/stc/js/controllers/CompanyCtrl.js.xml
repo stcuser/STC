@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<CSP name="stc/js/controllers/CompanyCtrl.js" application="/csp/third/" default="1"><![CDATA[
+'use strict';
+//dd
+
+controllersModule.controller('CompanyCtrl', function($scope, $routeParams, $timeout, $location, OrderSrvc, CompanySrvc, UtilsSrvc){
+    $scope.compForm = {company: {}, contact: {}, visible: true};
+   
+
+    $scope.init = function(){
+        if ($routeParams.id){
+            $scope.compForm.caption = "Редактирование компании";
+        }
+        else if ($routeParams.order){
+            $scope.compForm.caption = "Создание компании из заявки";
+            $scope.loadDirtyOrder($routeParams.order);
+        }
+        else{
+            $scope.compForm.caption = "Создание компании";
+        }
+    };
+
+    $scope.loadDirtyOrder = function(id){
+        OrderSrvc.getDirtyOrder(id).then(
+            function(data){
+                if (data.contact.company.id > 0){
+                    $scope.alert = UtilsSrvc.getAlert('Ошибка !', 'Компания из этой заявки уже существует', 'error', true);
+                    $scope.compForm.visible = false;
+                }
+                $scope.compForm.company.shortName = data.contact.company.shortName;
+                $scope.compForm.company.site = data.contact.company.site;
+                $scope.compForm.contact.lastName = data.contact.lastName;
+                $scope.compForm.contact.firstName = data.contact.firstName;
+                $scope.compForm.contact.middleName = data.contact.middleName;
+                $scope.compForm.contact.email = data.contact.email;
+                $scope.compForm.contact.phone = data.contact.phone;
+                $scope.compForm.contact.skype = data.contact.skype;
+            },
+            function(response){
+                $scope.compForm.alert = UtilsSrvc.getAlert('Ошибка !', response.data, 'error', true);
+            }); 
+    };
+
+    $scope.compForm.save = function(){
+        if ($routeParams.order){
+            CompanySrvc.saveCompanyFromOrder($scope.compForm.company, $scope.compForm.contact, $routeParams.order).then(
+                function(data){
+                    $scope.compForm.alert = UtilsSrvc.getAlert('Готово!', 'Создана компания и связь с контактом, заявка обновлена. Будет совершен переход к заявкам.', 'success', true);
+                    $timeout(function(){$location.path('/orders');}, 3500);
+                },
+                function(response){
+                    $scope.compForm.alert = UtilsSrvc.getAlert('Ошибка !', response.data, 'error', true);
+                    
+                });
+        }   
+    };
+
+    $scope.init();
+});
+
+]]></CSP>
+</Export>
