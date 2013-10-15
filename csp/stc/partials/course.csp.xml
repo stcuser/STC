@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<CSP name="stc/partials/course.csp" application="/csp/third/" default="1"><![CDATA[
+<div class="row-fluid">
+	<div class="span4">
+	</div>
+	<div class="span4">
+		<form>
+			<fieldset  class="scheduler-border">
+				<legend  class="scheduler-border">{{courseForm.caption}}</legend>
+				<div class="control-group">
+			        <label class="control-label">Курс</label>
+			        <div class="controls">
+			            <input class="span12" type="text" ng-model="courseForm.course.name"></input>
+			        </div>
+			    </div>
+			    <div class="control-group">
+			        <label class="control-label">Часы</label>
+			        <div class="controls">
+			            <input class="span12" type="text" ng-model="courseForm.course.hours"></input>
+			        </div>
+			    </div>
+				<div class="control-group">
+			        <label class="control-label">Дни</label>
+			        <div class="controls">
+			            <input class="span12" type="text" ng-model="courseForm.course.days"></input>
+			        </div>
+			    </div>
+				<div class="control-group">
+			        <label class="control-label">Программа курса</label>
+			        <div class="controls">
+			            <input class="span12" type="text" ng-model="courseForm.course.programmUrl"></input>
+			        </div>
+			    </div>
+			    <div class="control-group">
+			        <div class="controls">
+			            <button type="submit" class="btn btn-primary" ng-click="courseForm.save()">Сохранить</button>
+			            <button type="submit" class="btn" ng-click="courseForm.cancel()">Отмена</button>
+			        </div>
+			    </div>
+		   </fieldset>		    		    		    
+		</form>
+	</div>
+	<div class="span4">
+	</div>
+</div>
+<stcalert data="courseForm.alert" span-right="4" span-middle="4" span-left="4"/>]]></CSP>
+</Export>
