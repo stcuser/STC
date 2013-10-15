@@ -2,7 +2,7 @@
 <Export generator="Cache" version="25">
 <CSP name="stc/js/app.js" application="/csp/third/" default="1"><![CDATA[
 'use strict';
-//dfddj
+//dfdd
 
 
 var servicesModule    = angular.module('servicesModule', ['ngResource']);
